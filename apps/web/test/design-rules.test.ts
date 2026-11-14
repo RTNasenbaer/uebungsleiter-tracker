@@ -28,7 +28,9 @@ function offenders(re: RegExp) {
 describe('design rules', () => {
   it('uses no hex colors outside the generated token files', () => {
     // `#` followed by 3–8 hex digits that is not part of an id selector/anchor like href="#main"
-    expect(offenders(/(?<![\w&/-])#(?:[0-9a-fA-F]{8}|[0-9a-fA-F]{6}|[0-9a-fA-F]{3,4})\b(?![\w-])/)).toEqual([]);
+    expect(offenders(/(?<![\w&/-])#(?:[0-9a-fA-F]{8}|[0-9a-fA-F]{6}|[0-9a-fA-F]{3,4})\b(?![\w-])/)).toEqual(
+      [],
+    );
   });
 
   it('uses no Tailwind palette colors (only semantic tokens)', () => {

@@ -101,7 +101,7 @@
 
 {#if selected.size > 0}
   <div
-    class="fixed inset-x-0 bottom-[calc(4rem+env(safe-area-inset-bottom))] z-20 flex flex-wrap items-center gap-2 border-t-hl border-line bg-surface px-4 py-2 md:sticky md:top-0 md:bottom-auto md:z-10 md:mb-4 md:rounded-md md:border-hl"
+    class="fixed inset-x-0 bottom-[calc(4rem+env(safe-area-inset-bottom))] z-20 flex flex-wrap items-center gap-2 border-t-hl border-line bg-surface px-4 pt-2 pb-8 md:sticky md:top-0 md:bottom-auto md:z-10 md:mb-4 md:rounded-md md:border-hl"
   >
     <span class="flex-1 text-sm font-medium" aria-live="polite">{de.open.selected(selected.size)}</span>
     <Button variant="accent" onclick={() => bulk('held')} aria-label={de.open.markHeld}
@@ -119,7 +119,7 @@
   <Card><EmptyState text={de.sessions.none} /></Card>
 {:else}
   <!-- phones: cards -->
-  <ul class="flex flex-col gap-2 pb-20 md:hidden">
+  <ul class="flex flex-col gap-2 pb-28 md:hidden">
     {#each filtered as s (s.id)}
       <li>
         <SessionCard

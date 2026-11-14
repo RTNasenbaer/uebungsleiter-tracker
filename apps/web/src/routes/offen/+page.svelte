@@ -76,7 +76,7 @@
 {:else}
   <!-- bulk bar: fixed above the bottom navigation on phones, sticky at the top on larger screens -->
   <div
-    class="fixed inset-x-0 bottom-[calc(4rem+env(safe-area-inset-bottom))] z-20 border-t-hl border-line bg-surface px-4 py-2 md:sticky md:top-0 md:bottom-auto md:z-10 md:mb-6 md:rounded-md md:border-hl md:px-4"
+    class="fixed inset-x-0 bottom-[calc(4rem+env(safe-area-inset-bottom))] z-20 border-t-hl border-line bg-surface px-4 pt-2 pb-8 md:sticky md:top-0 md:bottom-auto md:z-10 md:mb-6 md:rounded-md md:border-hl md:px-4"
   >
     <div class="mx-auto flex max-w-content flex-wrap items-center gap-x-4 gap-y-1">
       <Checkbox
@@ -107,7 +107,7 @@
     </div>
   </div>
 
-  <div class="flex flex-col gap-8 pb-28 md:pb-0" data-testid="open-list">
+  <div class="flex flex-col gap-8 pb-36 md:pb-0" data-testid="open-list">
     {#each groups as g (g.key)}
       <section aria-labelledby="m-{g.key}">
         <SectionHeader id="m-{g.key}" title={g.title} count={g.items.length} />
@@ -120,6 +120,7 @@
                 selected={selected.has(s.occurrenceKey)}
                 onselect={() => toggle(s.occurrenceKey)}
                 onopen={() => (editing = s)}
+                showStatus={false}
               />
             </li>
           {/each}

@@ -102,3 +102,18 @@ Dependency) erzeugt `tokens.css` (`:root`, `[data-theme="dark"]`, `prefers-color
 6. **GitHub-Icon** stammt aus Primer Octicons (MIT): Lucide 1.x enthält keine Markenlogos mehr.
 7. Der Skill `ext-bencium-innovative-ux-designer` verbietet SVG; DESIGN.md und der Auftrag verlangen eigene SVGs für
    Ball-Logo und Ballnaht → Auftrag hat Vorrang. Die Richtungsentwürfe des Skills entfallen (Richtung ist festgelegt).
+
+## ADR-016 Design: Umsetzungsentscheidungen ohne Funktionsänderung
+
+- **„+ Neu“ bleibt eine eigene Route** (`/neu`) statt Bottom-Sheet: Deep-Link, Zurück-Taste und bestehende Flows bleiben;
+  mobil ist der Speichern-Button unten fixiert, Desktop zeigt das Formular in Formularbreite (560 px).
+- **Rückgängig** nach Ja/Nein und Sammelaktionen nutzt den vorhandenen `PATCH /api/sessions/:id` (setzt den alten
+  Status und löscht die Antwortfelder) – keine neue API.
+- **Alarm-Untertitel** enthält jetzt Beginn und Ort (`Di, 10.11. · 18:00–19:30 · Halle`), damit der native Alarm die
+  Hierarchie aus DESIGN.md §7 zeigen kann; `AlarmDisplay` (Kotlin) zerlegt den Text und zeigt ältere Einträge weiter an.
+- **Dialoge** sind native `<dialog>`-Elemente (Fokusfalle, `Esc`), unter 768 px als Bottom-Sheet mit Ziehgriff. Ein
+  flacher History-Eintrag (`pushState`) sorgt dafür, dass Zurück-Geste/Android-Zurück den Dialog schließt.
+- **Navigation:** „Offen“ ist mobil über Start (Badge, „Alle X offenen bestätigen“) und zusätzlich unter „Mehr“
+  erreichbar; Termine wandert in die untere Leiste (DESIGN.md §6).
+- **Schriften Android:** Barlow/Barlow Condensed als TTF im APK (OFL, `assets/licenses/Barlow-OFL.txt`), Web über
+  `@fontsource` (nur Latin-Schnitte 400/500/600 bzw. 600/700, `font-display: swap`).

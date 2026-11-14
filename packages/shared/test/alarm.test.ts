@@ -86,7 +86,11 @@ describe('buildAlarmList', () => {
   });
 
   it('keeps a short subtitle without start time and place', () => {
-    const [entry] = buildAlarmList([{ ...sessions[0]!, startTime: undefined, location: '' }], new Date('2026-11-10T12:00:00Z'), quiet);
+    const [entry] = buildAlarmList(
+      [{ ...sessions[0]!, startTime: undefined, location: '' }],
+      new Date('2026-11-10T12:00:00Z'),
+      quiet,
+    );
     expect(entry!.subtitle).toBe('Di, 10.11. · bis 19:30');
   });
 });

@@ -97,7 +97,7 @@
   {#if !s}
     <Skeleton rows={3} lines={3} />
   {:else}
-    <form class="flex flex-col gap-8 pb-24 md:pb-0" onsubmit={save}>
+    <form class="flex flex-col gap-8 pb-32 md:pb-0" onsubmit={save}>
       <section aria-labelledby="profile-h" class="flex flex-col gap-4">
         <SectionHeader id="profile-h" title={de.settings.profile} />
         <TextField
@@ -191,7 +191,7 @@
       </section>
 
       <div
-        class="fixed inset-x-0 bottom-[calc(4rem+env(safe-area-inset-bottom))] z-20 border-t-hl border-line bg-surface px-4 py-3 md:static md:border-0 md:bg-transparent md:p-0"
+        class="fixed inset-x-0 bottom-[calc(4rem+env(safe-area-inset-bottom))] z-20 border-t-hl border-line bg-surface px-4 pt-3 pb-8 md:static md:border-0 md:bg-transparent md:p-0"
       >
         <Button type="submit" size="lg" full class="md:w-auto md:px-10" loading={busy}
           >{de.common.save}</Button

@@ -6,7 +6,7 @@ Kostenlos, ohne Play Store, ohne Firebase – Open Source unter **AGPL-3.0-or-la
 
 | Vollbild-Alarm (Android)             | Offene Termine (Handy)                     | Start (PC)                                   | Antrag-PDF                             |
 | ------------------------------------ | ------------------------------------------ | -------------------------------------------- | -------------------------------------- |
-| ![Alarm](docs/screenshots/alarm.png) | ![Offen](docs/screenshots/offen-mobil.png) | ![Start](docs/screenshots/start-desktop.png) | ![Antrag](docs/screenshots/antrag.png) |
+| ![Alarm](docs/screenshots/alarm.png) | ![Offen](docs/screenshots/offen-mobil.jpg) | ![Start](docs/screenshots/start-desktop.jpg) | ![Antrag](docs/screenshots/antrag.png) |
 
 ## Funktionen
 

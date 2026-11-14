@@ -58,7 +58,9 @@ export interface AlarmSessionInput {
 }
 
 /** `Di, 10.11. · 18:00–19:30 · Halle` – the native alarm screen splits this at ` · ` (DESIGN.md §7). */
-export function alarmSubtitle(s: Pick<AlarmSessionInput, 'date' | 'startTime' | 'endTime' | 'location'>): string {
+export function alarmSubtitle(
+  s: Pick<AlarmSessionInput, 'date' | 'startTime' | 'endTime' | 'location'>,
+): string {
   const time = s.startTime ? `${s.startTime}–${s.endTime}` : `bis ${s.endTime}`;
   return [formatDayMonthDe(s.date), time, s.location ?? ''].filter(Boolean).join(' · ');
 }

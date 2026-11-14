@@ -17,7 +17,9 @@
   } = $props();
 </script>
 
-<label class="flex min-h-12 min-w-12 cursor-pointer items-center gap-3 {klass}">
+<label
+  class="flex min-h-12 min-w-12 cursor-pointer items-center {hideLabel ? 'justify-center' : 'gap-3'} {klass}"
+>
   <span class="relative inline-flex size-6 shrink-0 items-center justify-center">
     <input
       type="checkbox"
