@@ -20,6 +20,11 @@ Stand: 2026-11-14
 - E2E: 9 Flows × Chromium Desktop + Pixel 7 lokal grün (Firefox/WebKit/iPhone in der CI), axe ohne serious/critical
 - Android: 34 JVM-Tests (Robolectric) + 3 Roborazzi-Screenshots; Instrumented-Test (Sperrbildschirm) läuft im CI-Emulator
 
+## CI (PR #1)
+
+Alle Checks grün: Lint/Typecheck/Unit/Build, Playwright mit allen 5 Browsern/Geräten, Android
+(ktlint, detekt, Lint, JVM-Tests, Roborazzi-Verify, Debug-APK), Instrumented-Tests auf API 34 und 35.
+
 ## Offene Punkte / Ideen (Phase 8)
 
 - Design-Überarbeitung, eigene Domain, Telegram-/E-Mail-Fallback
