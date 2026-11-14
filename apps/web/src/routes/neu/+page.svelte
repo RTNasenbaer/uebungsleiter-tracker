@@ -15,13 +15,23 @@
     type SessionKind,
   } from '@ult/shared';
   import { api } from '$lib/api';
-  import WeekdayChips from '$lib/components/WeekdayChips.svelte';
+  import Info from 'lucide-svelte/icons/info';
+  import Button from '$lib/components/ui/Button.svelte';
+  import Card from '$lib/components/ui/Card.svelte';
+  import PageHeader from '$lib/components/ui/PageHeader.svelte';
+  import SectionHeader from '$lib/components/ui/SectionHeader.svelte';
+  import SegmentedControl from '$lib/components/ui/SegmentedControl.svelte';
+  import Select from '$lib/components/ui/Select.svelte';
+  import Switch from '$lib/components/ui/Switch.svelte';
+  import TextField from '$lib/components/ui/TextField.svelte';
+  import WeekdayChips from '$lib/components/ui/WeekdayChips.svelte';
+  import { SERIES_COLORS } from '$lib/styles/tokens.gen';
   import { de } from '$lib/i18n/de';
   import { bumpRevision, toast } from '$lib/state.svelte';
 
   const today = todayIn(systemClock);
   const editId = $derived(page.url.searchParams.get('series'));
-  const COLORS = ['#2563eb', '#16a34a', '#dc2626', '#9333ea', '#ea580c', '#0891b2', '#4b5563'];
+  const COLORS: readonly string[] = SERIES_COLORS;
 
   let f = $state({
     title: 'Training',
@@ -45,6 +55,8 @@
   let exceptions = $state<ExceptionDef[]>([]);
   let busy = $state(false);
   let error = $state('');
+  let weekdayError = $state<string | null>(null);
+  let payError = $state<string | null>(null);
 
   $effect(() => {
     api.exceptions().then((e) => (exceptions = e));
@@ -112,9 +124,11 @@
   async function submit(e: Event) {
     e.preventDefault();
     error = '';
+    payError = null;
+    weekdayError = null;
     const payCents = parseEuroToCents(f.pay);
-    if (payCents === null) return (error = de.form.invalidPay);
-    if (f.repeat && f.weekdays === 0) return (error = de.form.weekdayRequired);
+    if (payCents === null) return (payError = de.form.invalidPay);
+    if (f.repeat && f.weekdays === 0) return (weekdayError = de.form.weekdayRequired);
     busy = true;
     try {
       if (f.repeat) {
@@ -163,144 +177,131 @@
   }
 </script>
 
-<h1 class="h1">{editId ? de.form.editSeriesTitle : de.form.newTitle}</h1>
+<PageHeader
+  label={editId ? de.nav.series : de.nav.new}
+  title={editId ? de.form.editSeriesTitle : de.form.newTitle}
+/>
 
-<form class="card grid grid-cols-2 gap-4" onsubmit={submit}>
-  <label class="col-span-2 md:col-span-1">
-    <span class="label">{de.form.title}</span>
-    <input
-      class="input"
+<form class="flex max-w-form flex-col gap-8 pb-24 md:pb-0" onsubmit={submit} novalidate={false}>
+  <section aria-labelledby="sec-what" class="flex flex-col gap-4">
+    <SectionHeader id="sec-what" title={de.form.sectionWhat} />
+    <TextField
+      label={de.form.title}
       bind:value={f.title}
       placeholder={de.form.titlePlaceholder}
       required
-      maxlength="100"
+      maxlength={100}
     />
-  </label>
-  <label class="col-span-2 md:col-span-1">
-    <span class="label">{de.form.team}</span>
-    <input class="input" bind:value={f.team} placeholder={de.form.teamPlaceholder} maxlength="60" />
-  </label>
+    <TextField
+      label={de.form.team}
+      bind:value={f.team}
+      placeholder={de.form.teamPlaceholder}
+      maxlength={60}
+    />
+    <TextField type="date" label={f.repeat ? de.form.startDate : de.form.date} bind:value={f.date} required />
+    <div class="grid grid-cols-2 gap-3">
+      <TextField type="time" label={de.form.start} bind:value={f.startTime} required />
+      <TextField type="time" label={de.form.end} bind:value={f.endTime} required />
+    </div>
+    <TextField label={de.form.location} bind:value={f.location} maxlength={120} />
+  </section>
 
-  <label class="col-span-2 md:col-span-1">
-    <span class="label">{f.repeat ? de.form.startDate : de.form.date}</span>
-    <input class="input" type="date" bind:value={f.date} required />
-  </label>
-  <div class="col-span-2 grid grid-cols-2 gap-4 md:col-span-1">
-    <label
-      ><span class="label">{de.form.start}</span><input
-        class="input"
-        type="time"
-        bind:value={f.startTime}
-        required
-      /></label
-    >
-    <label
-      ><span class="label">{de.form.end}</span><input
-        class="input"
-        type="time"
-        bind:value={f.endTime}
-        required
-      /></label
-    >
-  </div>
-
-  <label class="col-span-2">
-    <span class="label">{de.form.location}</span>
-    <input class="input" bind:value={f.location} maxlength="120" />
-  </label>
-  <label>
-    <span class="label">{de.form.units}</span>
-    <input class="input" type="number" min="0" max="20" bind:value={f.units} />
-  </label>
-  <label>
-    <span class="label">{de.form.pay}</span>
-    <input class="input" inputmode="decimal" bind:value={f.pay} />
-  </label>
-
-  {#if !editId}
-    <label class="col-span-2 flex min-h-touch items-center gap-3 font-medium">
-      <input type="checkbox" role="switch" class="size-6" bind:checked={f.repeat} />
-      {de.form.repeat}
-    </label>
-  {/if}
-
-  {#if f.repeat}
-    <div class="col-span-2"><WeekdayChips bind:value={f.weekdays} /></div>
-    <fieldset class="col-span-2 md:col-span-1">
-      <legend class="label">{de.form.interval}</legend>
-      <div class="flex gap-2">
-        {#each [1, 2] as n (n)}
-          <label class="btn-secondary flex-1 has-checked:border-brand-700 has-checked:bg-brand-50">
-            <input type="radio" class="sr-only" name="interval" value={n} bind:group={f.intervalWeeks} />
-            {n === 1 ? de.form.interval1 : de.form.interval2}
-          </label>
-        {/each}
-      </div>
-    </fieldset>
-    <fieldset class="col-span-2 md:col-span-1">
-      <legend class="label">{de.form.ends}</legend>
-      <div class="flex gap-2">
-        <label class="btn-secondary flex-1 has-checked:border-brand-700 has-checked:bg-brand-50">
-          <input type="radio" class="sr-only" name="ends" value="never" bind:group={f.endsMode} />{de.form
-            .endsNever}
-        </label>
-        <label class="btn-secondary flex-1 has-checked:border-brand-700 has-checked:bg-brand-50">
-          <input type="radio" class="sr-only" name="ends" value="date" bind:group={f.endsMode} />{de.form
-            .endsOn}
-        </label>
-      </div>
-      {#if f.endsMode === 'date'}
-        <label class="mt-2 block">
-          <span class="sr-only">{de.form.endDate}</span>
-          <input
-            class="input"
-            type="date"
-            bind:value={f.endsOn}
-            min={f.date}
-            required
-            aria-label={de.form.endDate}
-          />
-        </label>
-      {/if}
-    </fieldset>
-    <label>
-      <span class="label">{de.form.alarmOffset}</span>
-      <input class="input" type="number" min="0" max="600" bind:value={f.alarmOffsetMin} />
-    </label>
-    <fieldset>
-      <legend class="label">{de.form.color}</legend>
-      <div class="flex flex-wrap gap-2">
-        {#each COLORS as c (c)}
-          <label
-            class="flex size-12 cursor-pointer items-center justify-center rounded-full border-2 has-checked:border-ink"
-            style="background: {c}"
-          >
-            <input type="radio" class="sr-only" name="color" value={c} bind:group={f.color} aria-label={c} />
-          </label>
-        {/each}
-      </div>
-    </fieldset>
-    {#if pastCount > 0}
-      <p class="col-span-2 rounded-lg bg-amber-100 p-3 text-amber-950" role="status" data-testid="past-hint">
-        {de.form.pastHint(pastCount)}
-      </p>
+  <section aria-labelledby="sec-repeat" class="flex flex-col gap-4">
+    <SectionHeader id="sec-repeat" title={de.form.sectionRepeat} />
+    {#if !editId}
+      <Card class="py-2 md:py-2"><Switch label={de.form.repeat} bind:checked={f.repeat} /></Card>
     {/if}
-  {:else}
-    <label>
-      <span class="label">{de.form.kind}</span>
-      <select class="input" bind:value={f.kind}>
-        {#each SESSION_KINDS as k (k)}<option value={k}>{de.kind[k]}</option>{/each}
-      </select>
-    </label>
-    <label>
-      <span class="label">{de.form.note}</span>
-      <input class="input" bind:value={f.note} maxlength="500" />
-    </label>
-  {/if}
+    {#if f.repeat}
+      <WeekdayChips bind:value={f.weekdays} error={weekdayError} />
+      <SegmentedControl
+        legend={de.form.interval}
+        bind:value={f.intervalWeeks}
+        options={[
+          { value: 1, label: de.form.interval1 },
+          { value: 2, label: de.form.interval2 },
+        ]}
+      />
+      <SegmentedControl
+        legend={de.form.ends}
+        bind:value={f.endsMode}
+        options={[
+          { value: 'never', label: de.form.endsNever },
+          { value: 'date', label: de.form.endsOn },
+        ]}
+      />
+      {#if f.endsMode === 'date'}
+        <TextField type="date" label={de.form.endDate} bind:value={f.endsOn} min={f.date} required />
+      {/if}
+      {#if pastCount > 0}
+        <div class="flex items-start gap-3 rounded-md bg-surface-sunken p-4" role="status">
+          <Info size={20} strokeWidth={1.75} aria-hidden="true" class="mt-0.5 shrink-0" />
+          <p data-testid="past-hint">{de.form.pastHint(pastCount)}</p>
+        </div>
+      {/if}
+    {/if}
+  </section>
 
-  {#if error}<p class="col-span-2 text-red-700" role="alert">{error}</p>{/if}
-  <div class="col-span-2 flex gap-2">
-    <button class="btn-primary flex-1" type="submit" disabled={busy}>{de.common.save}</button>
-    <a class="btn-secondary" href={editId ? '/trainings' : '/'}>{de.common.cancel}</a>
+  <section aria-labelledby="sec-pay" class="flex flex-col gap-4">
+    <SectionHeader id="sec-pay" title={f.repeat ? de.form.sectionPay : de.form.sectionMore} />
+    <div class="grid grid-cols-2 gap-3">
+      <TextField
+        type="number"
+        label={de.form.units}
+        bind:value={f.units}
+        min={0}
+        max={20}
+        inputmode="numeric"
+      />
+      <TextField label={de.form.pay} bind:value={f.pay} inputmode="decimal" error={payError} />
+    </div>
+    {#if f.repeat}
+      <TextField
+        type="number"
+        label={de.form.alarmOffset}
+        help={de.form.alarmOffsetHelp}
+        bind:value={f.alarmOffsetMin}
+        min={0}
+        max={600}
+        inputmode="numeric"
+      />
+      <fieldset>
+        <legend class="mb-2 text-sm font-semibold">{de.form.color}</legend>
+        <div class="flex flex-wrap gap-2">
+          {#each COLORS as c, i (c)}
+            <label
+              class="relative flex size-12 cursor-pointer items-center justify-center rounded-full has-checked:ring-2 has-checked:ring-fg has-checked:ring-offset-2 has-checked:ring-offset-bg has-focus-visible:outline-3 has-focus-visible:outline-offset-4 has-focus-visible:outline-focus-outer"
+              style:background={c}
+            >
+              <input
+                type="radio"
+                class="sr-only"
+                name="color"
+                value={c}
+                bind:group={f.color}
+                aria-label={de.form.colors[i] ?? c}
+              />
+            </label>
+          {/each}
+        </div>
+      </fieldset>
+    {:else}
+      <Select
+        label={de.form.kind}
+        bind:value={f.kind}
+        options={SESSION_KINDS.map((k) => ({ value: k, label: de.kind[k] }))}
+      />
+      <TextField label={de.form.note} bind:value={f.note} maxlength={500} />
+    {/if}
+  </section>
+
+  {#if error}<p class="font-medium text-danger" role="alert">{error}</p>{/if}
+
+  <div
+    class="fixed inset-x-0 bottom-[calc(4rem+env(safe-area-inset-bottom))] z-20 flex gap-3 border-t-hl border-line bg-surface px-4 py-3 md:static md:border-0 md:bg-transparent md:p-0"
+  >
+    <Button type="submit" size="lg" class="flex-1 md:flex-none md:px-10" loading={busy}
+      >{de.common.save}</Button
+    >
+    <Button href={editId ? '/trainings' : '/'} variant="ghost" size="lg">{de.common.cancel}</Button>
   </div>
 </form>

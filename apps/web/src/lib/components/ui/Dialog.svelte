@@ -22,6 +22,7 @@
     size = 'md',
     header = true,
     testid,
+    tone = 'default',
   }: {
     open: boolean;
     title: string;
@@ -34,6 +35,8 @@
     size?: 'md' | 'lg';
     header?: boolean;
     testid?: string;
+    /** `alarm`: dark scoreboard look in both themes (in-app question) */
+    tone?: 'default' | 'alarm';
   } = $props();
 
   const uid = $props.id();
@@ -52,7 +55,14 @@
         pushed = true;
       }
     }
-    if (!open && dialog.open) dialog.close();
+    if (!open && dialog.open) {
+      dialog.close();
+      // closed from outside (e.g. after saving): drop our history entry again
+      if (pushed) {
+        pushed = false;
+        history.back();
+      }
+    }
   });
 
   // back gesture / browser back while open → close
@@ -92,9 +102,9 @@
 
 <dialog
   bind:this={dialog}
-  class="hl-dialog {size === 'lg'
-    ? 'md:w-[min(44rem,calc(100vw-3rem))]'
-    : 'md:w-[min(32rem,calc(100vw-3rem))]'}"
+  class:hl-dialog--alarm={tone === 'alarm'}
+  class="hl-dialog"
+  style:--dialog-w={size === 'lg' ? '44rem' : '32rem'}
   style:--drag="{dragY}px"
   aria-labelledby="{uid}-title"
   data-testid={testid}
@@ -162,6 +172,11 @@
     padding-bottom: env(safe-area-inset-bottom);
     transform: translateY(var(--drag, 0));
   }
+  .hl-dialog--alarm {
+    background: var(--hl-alarm-bg);
+    color: var(--hl-alarm-text);
+    color-scheme: dark;
+  }
   .hl-dialog[open] {
     animation: hl-sheet-in var(--hl-duration-slow) var(--hl-ease-standard) both;
   }
@@ -172,6 +187,7 @@
   @media (min-width: 768px) {
     .hl-dialog {
       margin: auto;
+      width: min(var(--dialog-w, 32rem), calc(100vw - 3rem));
       max-height: min(85dvh, 100%);
       border-radius: var(--hl-radius-md);
       padding-bottom: 0;

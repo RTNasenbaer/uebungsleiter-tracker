@@ -13,12 +13,19 @@
   import { api } from '$lib/api';
   import { de } from '$lib/i18n/de';
   import { bumpRevision, toast } from '$lib/state.svelte';
-  import Modal from './Modal.svelte';
+  import Ban from 'lucide-svelte/icons/ban';
+  import Trash2 from 'lucide-svelte/icons/trash-2';
+  import Button from './ui/Button.svelte';
+  import Dialog from './ui/Dialog.svelte';
+  import RadioCard from './ui/RadioCard.svelte';
+  import Select from './ui/Select.svelte';
+  import TextField from './ui/TextField.svelte';
 
   let { session = $bindable(null), onsaved }: { session: SessionDto | null; onsaved?: () => void } = $props();
 
   let open = $state(false);
   let askScope = $state(false);
+  let scope = $state<'one' | 'following' | 'all'>('one');
   let busy = $state(false);
   let f = $state({
     date: '',
@@ -53,6 +60,7 @@
       note: session.note ?? '',
     };
     askScope = false;
+    scope = 'one';
     open = true;
   });
 
@@ -144,114 +152,96 @@
 </script>
 
 {#if session}
-  <Modal bind:open title={de.sessions.edit} onclose={close}>
+  <Dialog
+    bind:open
+    title={askScope ? de.sessions.scopeTitle : de.sessions.edit}
+    label={formatDateDe(session.date)}
+    onclose={close}
+  >
     {#if askScope}
       <div class="flex flex-col gap-3" data-testid="scope-dialog">
         <p class="font-medium">{de.sessions.scopeQuestion}</p>
-        <button class="btn-secondary justify-start" disabled={busy} onclick={() => saveScope('one')}
-          >{de.sessions.scopeOne}</button
-        >
-        <button class="btn-secondary justify-start" disabled={busy} onclick={() => saveScope('following')}
-          >{de.sessions.scopeFollowing}</button
-        >
-        <button class="btn-secondary justify-start" disabled={busy} onclick={() => saveScope('all')}
-          >{de.sessions.scopeAll}</button
-        >
-        <button class="btn" onclick={() => (askScope = false)}>{de.common.back}</button>
+        <div class="flex flex-col gap-2" role="radiogroup" aria-label={de.sessions.scopeQuestion}>
+          <RadioCard
+            name="scope"
+            value="one"
+            bind:group={scope}
+            title={de.sessions.scopeOne}
+            description={de.sessions.scopeOneHint}
+          />
+          <RadioCard
+            name="scope"
+            value="following"
+            bind:group={scope}
+            title={de.sessions.scopeFollowing}
+            description={de.sessions.scopeFollowingHint}
+          />
+          <RadioCard
+            name="scope"
+            value="all"
+            bind:group={scope}
+            title={de.sessions.scopeAll}
+            description={de.sessions.scopeAllHint}
+          />
+        </div>
+        <div class="mt-2 flex flex-wrap gap-2">
+          <Button class="flex-1" loading={busy} onclick={() => saveScope(scope)}
+            >{de.sessions.scopeApply}</Button
+          >
+          <Button variant="ghost" onclick={() => (askScope = false)}>{de.common.back}</Button>
+        </div>
       </div>
     {:else}
-      <form class="grid grid-cols-2 gap-3" onsubmit={save}>
-        <p class="col-span-2 text-sm text-ink-muted">{formatDateDe(session.date)}</p>
-        <label class="col-span-2"
-          ><span class="label">{de.form.title}</span><input
-            class="input"
-            bind:value={f.title}
-            required
-          /></label
-        >
-        <label><span class="label">{de.form.team}</span><input class="input" bind:value={f.team} /></label>
-        <label
-          ><span class="label">{de.form.kind}</span>
-          <select class="input" bind:value={f.kind}>
-            {#each SESSION_KINDS as k (k)}<option value={k}>{de.kind[k]}</option>{/each}
-          </select>
-        </label>
-        <label class="col-span-2"
-          ><span class="label">{de.form.date}</span><input
-            class="input"
-            type="date"
-            bind:value={f.date}
-            required
-          /></label
-        >
-        <label
-          ><span class="label">{de.form.start}</span><input
-            class="input"
-            type="time"
-            bind:value={f.startTime}
-            required
-          /></label
-        >
-        <label
-          ><span class="label">{de.form.end}</span><input
-            class="input"
-            type="time"
-            bind:value={f.endTime}
-            required
-          /></label
-        >
-        <label class="col-span-2"
-          ><span class="label">{de.form.location}</span><input class="input" bind:value={f.location} /></label
-        >
-        <label
-          ><span class="label">{de.form.units}</span><input
-            class="input"
-            type="number"
-            min="0"
-            max="20"
-            bind:value={f.units}
-          /></label
-        >
-        <label
-          ><span class="label">{de.form.pay}</span><input
-            class="input"
-            inputmode="decimal"
-            bind:value={f.pay}
-          /></label
-        >
-        <label class="col-span-2"
-          ><span class="label">{de.sessions.columns.status}</span>
-          <select class="input" bind:value={f.status}>
-            {#each SESSION_STATUSES as st (st)}<option value={st}>{de.status[st]}</option>{/each}
-          </select>
-        </label>
-        <label class="col-span-2"
-          ><span class="label">{de.sessions.note}</span><input
-            class="input"
-            bind:value={f.note}
-            maxlength="500"
-          /></label
-        >
+      <form id="session-form" class="grid grid-cols-2 gap-4" onsubmit={save}>
+        <TextField class="col-span-2" label={de.form.title} bind:value={f.title} required />
+        <TextField label={de.form.team} bind:value={f.team} />
+        <Select
+          label={de.form.kind}
+          bind:value={f.kind}
+          options={SESSION_KINDS.map((k) => ({ value: k, label: de.kind[k] }))}
+        />
+        <TextField class="col-span-2" type="date" label={de.form.date} bind:value={f.date} required />
+        <TextField type="time" label={de.form.start} bind:value={f.startTime} required />
+        <TextField type="time" label={de.form.end} bind:value={f.endTime} required />
+        <TextField class="col-span-2" label={de.form.location} bind:value={f.location} />
+        <TextField
+          type="number"
+          label={de.form.units}
+          bind:value={f.units}
+          min={0}
+          max={20}
+          inputmode="numeric"
+        />
+        <TextField label={de.form.pay} bind:value={f.pay} inputmode="decimal" />
+        <Select
+          class="col-span-2"
+          label={de.sessions.columns.status}
+          bind:value={f.status}
+          options={SESSION_STATUSES.map((st) => ({ value: st, label: de.status[st] }))}
+        />
+        <TextField class="col-span-2" label={de.sessions.note} bind:value={f.note} maxlength={500} />
         <div class="col-span-2 mt-2 flex flex-wrap gap-2">
-          <button class="btn-primary flex-1" type="submit" disabled={busy}>{de.common.save}</button>
+          <Button type="submit" class="flex-1" loading={busy}>{de.common.save}</Button>
           {#if session.seriesId}
-            <button
-              class="btn-secondary"
-              type="button"
+            <Button
+              variant="secondary"
               disabled={busy}
               onclick={() => run(() => api.patchSession(session!.id, { status: 'cancelled' }))}
-              >{de.sessions.cancelSession}</button
+            >
+              <Ban size={18} strokeWidth={1.75} aria-hidden="true" />{de.sessions.cancelSession}</Button
             >
           {:else}
-            <button
-              class="btn-danger"
-              type="button"
+            <Button
+              variant="ghost"
+              class="text-danger"
               disabled={busy}
-              onclick={() => run(() => api.deleteSession(session!.id))}>{de.sessions.deleteSingle}</button
+              onclick={() => run(() => api.deleteSession(session!.id))}
+            >
+              <Trash2 size={18} strokeWidth={1.75} aria-hidden="true" />{de.sessions.deleteSingle}</Button
             >
           {/if}
         </div>
       </form>
     {/if}
-  </Modal>
+  </Dialog>
 {/if}

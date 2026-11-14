@@ -1,30 +1,50 @@
 <!-- SPDX-License-Identifier: AGPL-3.0-or-later -->
 <script lang="ts">
+  import { MediaQuery } from 'svelte/reactivity';
   import {
     MONTHS_DE,
     WEEKDAY_LABELS,
     addDays,
     formatDateDe,
+    formatDateLongDe,
     lastDayOfMonth,
     mondayOf,
     systemClock,
     todayIn,
+    type ExceptionDto,
     type SessionDto,
+    type SessionStatus,
   } from '@ult/shared';
+  import ChevronLeft from 'lucide-svelte/icons/chevron-left';
+  import ChevronRight from 'lucide-svelte/icons/chevron-right';
   import { api } from '$lib/api';
   import SessionEditor from '$lib/components/SessionEditor.svelte';
-  import StatusBadge from '$lib/components/StatusBadge.svelte';
+  import Button from '$lib/components/ui/Button.svelte';
+  import Card from '$lib/components/ui/Card.svelte';
+  import Dialog from '$lib/components/ui/Dialog.svelte';
+  import IconButton from '$lib/components/ui/IconButton.svelte';
+  import PageHeader from '$lib/components/ui/PageHeader.svelte';
+  import SectionHeader from '$lib/components/ui/SectionHeader.svelte';
+  import SegmentedControl from '$lib/components/ui/SegmentedControl.svelte';
+  import SessionCard from '$lib/components/ui/SessionCard.svelte';
+  import StatusDot from '$lib/components/ui/StatusDot.svelte';
+  import { afterDialogClosed } from '$lib/components/ui/history';
   import { de } from '$lib/i18n/de';
   import { app } from '$lib/state.svelte';
 
   const today = todayIn(systemClock);
+  const desktop = new MediaQuery('min-width: 1024px');
   let ym = $state({ y: Number(today.slice(0, 4)), m: Number(today.slice(5, 7)) });
   let sessions = $state<SessionDto[]>([]);
+  let exceptions = $state<ExceptionDto[]>([]);
   let selectedDay = $state<string | null>(today);
+  let sheetOpen = $state(false);
+  let view = $state<'month' | 'list'>('month');
   let editing = $state<SessionDto | null>(null);
 
   const first = $derived(`${ym.y}-${String(ym.m).padStart(2, '0')}-01`);
   const last = $derived(lastDayOfMonth(ym.y, ym.m));
+  const monthTitle = $derived(`${MONTHS_DE[ym.m - 1]} ${ym.y}`);
   const gridDays = $derived.by(() => {
     const start = mondayOf(first);
     const days: string[] = [];
@@ -38,10 +58,20 @@
     }, {}),
   );
   const daySessions = $derived(selectedDay ? (byDay[selectedDay] ?? []) : []);
+  const listDays = $derived(Object.keys(byDay).sort());
+  const closedOn = (d: string) =>
+    exceptions.find((e) => !e.seriesId && e.fromDate <= d && e.toDate >= d)?.label ?? null;
 
   $effect(() => {
     void app.revision;
     api.sessions(first, last).then((s) => (sessions = s));
+  });
+  $effect(() => {
+    void app.revision;
+    api
+      .exceptions()
+      .then((e) => (exceptions = e))
+      .catch(() => {});
   });
 
   function shift(delta: number) {
@@ -50,84 +80,163 @@
     selectedDay = null;
   }
 
-  const dot: Record<string, string> = {
-    planned: 'bg-status-planned',
-    pending: 'bg-status-pending',
-    held: 'bg-status-held',
-    not_held: 'bg-status-not-held',
-    cancelled: 'bg-status-cancelled opacity-40',
-  };
+  function pick(d: string) {
+    selectedDay = d;
+    if (!desktop.current) sheetOpen = true;
+  }
+
+  const LEGEND: SessionStatus[] = ['held', 'not_held', 'pending', 'planned', 'cancelled'];
 </script>
 
-<h1 class="h1">{de.calendar.title}</h1>
-
-<div class="card">
-  <div class="mb-3 flex items-center justify-between gap-2">
-    <button class="btn-secondary min-w-touch" aria-label={de.calendar.prev} onclick={() => shift(-1)}
-      >‹</button
-    >
-    <h2 class="text-lg font-semibold" aria-live="polite">{MONTHS_DE[ym.m - 1]} {ym.y}</h2>
-    <button class="btn-secondary min-w-touch" aria-label={de.calendar.next} onclick={() => shift(1)}>›</button
-    >
-  </div>
-
-  <!-- Month grid (also usable on phones; the day list below shows details) -->
-  <div class="grid grid-cols-7 gap-1 text-center" aria-label="{MONTHS_DE[ym.m - 1]} {ym.y}" role="group">
-    {#each WEEKDAY_LABELS as w (w)}
-      <div class="pb-1 text-xs font-semibold text-ink-muted" aria-hidden="true">{w}</div>
-    {/each}
-    {#each gridDays as d (d)}
-      {@const inMonth = d >= first && d <= last}
-      {@const list = byDay[d] ?? []}
-      <button
-        class="flex min-h-14 flex-col items-center gap-1 rounded-lg border p-1 text-sm md:min-h-20 {selectedDay ===
-        d
-          ? 'border-brand-700 bg-brand-50'
-          : 'border-transparent hover:bg-surface-muted'} {inMonth ? '' : 'bg-surface-muted text-ink-muted'}"
-        aria-pressed={selectedDay === d}
-        aria-label="{formatDateDe(d)}, {list.length} {list.length === 1 ? 'Termin' : 'Termine'}"
-        onclick={() => (selectedDay = d)}
+<PageHeader label={monthTitle} title={de.calendar.title}>
+  {#snippet actions()}
+    <div class="flex items-center gap-1">
+      <IconButton icon={ChevronLeft} label={de.calendar.prev} variant="secondary" onclick={() => shift(-1)} />
+      <Button
+        variant="ghost"
+        onclick={() => {
+          ym = { y: Number(today.slice(0, 4)), m: Number(today.slice(5, 7)) };
+          selectedDay = today;
+        }}>{de.calendar.today}</Button
       >
-        <span class={d === today ? 'rounded-full bg-brand-700 px-1.5 font-bold text-white' : ''}
-          >{Number(d.slice(8))}</span
-        >
-        <span class="flex flex-wrap justify-center gap-0.5">
-          {#each list as s (s.id)}
-            <span class="size-2.5 rounded-full {dot[s.status]}" title={de.status[s.status]}></span>
-          {/each}
-        </span>
-        <span class="hidden w-full truncate text-[0.7rem] md:block">
-          {list.map((s) => s.team || s.title).join(', ')}
-        </span>
-      </button>
-    {/each}
-  </div>
+      <IconButton icon={ChevronRight} label={de.calendar.next} variant="secondary" onclick={() => shift(1)} />
+    </div>
+  {/snippet}
+</PageHeader>
+
+<p class="sr-only" aria-live="polite">{monthTitle}</p>
+
+<div class="mb-4 md:hidden">
+  <SegmentedControl
+    legend={de.calendar.view}
+    hideLegend
+    bind:value={view}
+    options={[
+      { value: 'month', label: de.calendar.month },
+      { value: 'list', label: de.calendar.list },
+    ]}
+  />
 </div>
 
-{#if selectedDay}
-  <section class="card mt-4" aria-live="polite">
-    <h2 class="h2">{formatDateDe(selectedDay)}</h2>
-    {#if daySessions.length === 0}
-      <p class="text-ink-muted">{de.calendar.noSessions}</p>
-    {:else}
-      <ul class="flex flex-col divide-y divide-line">
-        {#each daySessions as s (s.id)}
-          <li>
-            <button
-              class="flex min-h-touch w-full items-center justify-between gap-2 py-2 text-left"
-              onclick={() => (editing = s)}
-            >
-              <span>
-                <span class="font-medium">{s.startTime}–{s.endTime}</span>
-                {[s.team, s.title, s.location].filter(Boolean).join(' · ')}
-              </span>
-              <StatusBadge status={s.status} />
-            </button>
-          </li>
+<div class="grid gap-6 lg:grid-cols-[minmax(0,1fr)_20rem]">
+  <div class={view === 'list' ? 'hidden md:block' : ''}>
+    <Card padded={false} class="overflow-hidden">
+      <div class="grid grid-cols-7 border-b-hl border-line bg-surface-sunken" aria-hidden="true">
+        {#each WEEKDAY_LABELS as w (w)}
+          <div class="py-2 text-center label-caps">{w}</div>
         {/each}
-      </ul>
+      </div>
+      <div class="grid grid-cols-7" role="group" aria-label={monthTitle}>
+        {#each gridDays as d, i (d)}
+          {@const inMonth = d >= first && d <= last}
+          {@const list = byDay[d] ?? []}
+          {@const closed = closedOn(d)}
+          <button
+            type="button"
+            class="relative flex min-h-16 cursor-pointer flex-col items-center gap-1.5 p-1.5 text-sm transition-press hover:bg-surface-sunken md:min-h-24 md:items-start md:p-2 {i %
+              7 !==
+            6
+              ? 'border-r-hl'
+              : ''} {i < gridDays.length - 7 ? 'border-b-hl' : ''} border-line {inMonth
+              ? ''
+              : 'text-muted'} {selectedDay === d ? 'bg-surface-sunken' : ''}"
+            style:background-image={closed
+              ? 'repeating-linear-gradient(135deg, var(--hl-line) 0 1.5px, transparent 1.5px 7px)'
+              : undefined}
+            aria-pressed={selectedDay === d}
+            aria-label="{formatDateDe(d)}, {de.calendar.sessionsCount(list.length)}{closed
+              ? `, ${closed}`
+              : ''}"
+            onclick={() => pick(d)}
+          >
+            {#if selectedDay === d}
+              <span class="absolute inset-0 border-2 border-primary" aria-hidden="true"></span>
+            {/if}
+            <span
+              class="inline-flex size-7 items-center justify-center rounded-full font-score text-lg font-semibold {d ===
+              today
+                ? 'ring-[3px] ring-accent'
+                : ''}">{Number(d.slice(8))}</span
+            >
+            <span class="flex flex-wrap items-center justify-center gap-1" aria-hidden="true">
+              {#each list.slice(0, 3) as s (s.id)}<StatusDot status={s.status} />{/each}
+              {#if list.length > 3}<span class="text-xs font-semibold text-muted">+{list.length - 3}</span
+                >{/if}
+            </span>
+            <span class="hidden w-full truncate text-left text-xs text-muted md:block" aria-hidden="true">
+              {list.map((s) => s.team || s.title).join(', ')}
+            </span>
+          </button>
+        {/each}
+      </div>
+    </Card>
+    <ul class="mt-3 flex flex-wrap gap-x-4 gap-y-1 text-sm text-muted" aria-label={de.calendar.legend}>
+      {#each LEGEND as st (st)}
+        <li class="flex items-center gap-1.5"><StatusDot status={st} />{de.status[st]}</li>
+      {/each}
+      <li class="flex items-center gap-1.5">
+        <span
+          class="block size-3 border border-line"
+          style:background-image="repeating-linear-gradient(135deg, var(--hl-line-strong) 0 1px, transparent
+          1px 3px)"
+        ></span>{de.calendar.closed}
+      </li>
+    </ul>
+  </div>
+
+  <!-- list view (phones) -->
+  {#if view === 'list'}
+    <div class="flex flex-col gap-6 md:hidden">
+      {#if listDays.length === 0}<p class="text-muted">{de.calendar.noSessionsMonth}</p>{/if}
+      {#each listDays as d (d)}
+        <section aria-labelledby="day-{d}">
+          <SectionHeader id="day-{d}" title={formatDateDe(d)} />
+          <div class="flex flex-col gap-2">
+            {#each byDay[d] ?? [] as s (s.id)}<SessionCard session={s} onopen={() => (editing = s)} />{/each}
+          </div>
+        </section>
+      {/each}
+    </div>
+  {/if}
+
+  <!-- side panel (desktop) -->
+  {#if desktop.current}
+    <aside aria-live="polite">
+      {#if selectedDay}
+        <SectionHeader title={formatDateLongDe(selectedDay)} />
+        {#if daySessions.length === 0}
+          <p class="text-muted">{de.calendar.noSessions}</p>
+        {:else}
+          <div class="flex flex-col gap-2">
+            {#each daySessions as s (s.id)}<SessionCard session={s} onopen={() => (editing = s)} />{/each}
+          </div>
+        {/if}
+      {:else}
+        <p class="text-muted">{de.calendar.pickDay}</p>
+      {/if}
+    </aside>
+  {/if}
+</div>
+
+{#if !desktop.current && selectedDay}
+  <Dialog bind:open={sheetOpen} title={formatDateLongDe(selectedDay)} label={de.calendar.title}>
+    {#if daySessions.length === 0}
+      <p class="text-muted">{de.calendar.noSessions}</p>
+    {:else}
+      <div class="flex flex-col gap-2">
+        {#each daySessions as s (s.id)}
+          <SessionCard
+            session={s}
+            onopen={async () => {
+              sheetOpen = false;
+              await afterDialogClosed();
+              editing = s;
+            }}
+          />
+        {/each}
+      </div>
     {/if}
-  </section>
+  </Dialog>
 {/if}
 
 <SessionEditor bind:session={editing} />

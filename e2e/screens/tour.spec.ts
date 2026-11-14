@@ -12,7 +12,13 @@ async function shot(page: Page, name: string) {
   // let fonts and transitions settle
   await page.evaluate(() => document.fonts.ready);
   await page.waitForTimeout(400);
-  await page.screenshot({ path: `${dir}/${name}.jpg`, fullPage: true, type: 'jpeg', quality: 72 });
+  await page.screenshot({
+    path: `${dir}/${name}.jpg`,
+    fullPage: true,
+    type: 'jpeg',
+    quality: 72,
+    animations: 'disabled',
+  });
 }
 
 async function seed(page: Page) {

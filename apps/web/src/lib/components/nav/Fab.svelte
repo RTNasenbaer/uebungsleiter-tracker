@@ -14,6 +14,6 @@
   aria-label={de.nav.newTraining}
   title={de.nav.newTraining}
 >
-  <BallSeam size={44} strokeWidth={1.25} outline={false} class="absolute opacity-25" />
+  <BallSeam size={46} strokeWidth={1.25} class="absolute opacity-20" />
   <Plus size={28} strokeWidth={2.25} aria-hidden="true" class="relative" />
 </a>

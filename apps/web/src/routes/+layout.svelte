@@ -61,11 +61,7 @@
     return onMutation(() => scheduleAlarmSync());
   });
 
-  $effect(() => {
-    // close the "more" sheet after navigation
-    void page.url.pathname;
-    moreOpen = false;
-  });
+  // The "more" sheet closes itself on navigation (Dialog watches its history entry).
 </script>
 
 <a
