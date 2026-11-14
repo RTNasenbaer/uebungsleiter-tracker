@@ -11,11 +11,11 @@
     <string name="reminder_channel_name">Erinnerungen</string>
     <string name="reminder_channel_description">Offene Antworten und Antrags-Frist</string>
     <string name="alarm_question">Training gehalten?</string>
-    <string name="alarm_yes">JA, gehalten</string>
-    <string name="alarm_no">NEIN</string>
+    <string name="alarm_yes">Ja, gehalten</string>
+    <string name="alarm_no">Nein</string>
     <string name="alarm_later">Später (%1$d min)</string>
     <string name="alarm_note_hint">Notiz (optional)</string>
-    <string name="alarm_saved">Antwort gespeichert</string>
+    <string name="alarm_saved">Eingetragen</string>
     <string name="action_yes">Ja</string>
     <string name="action_no">Nein</string>
     <string name="action_later">Später</string>

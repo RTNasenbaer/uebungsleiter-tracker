@@ -4,7 +4,7 @@ import {
   type HhMm,
   type IsoDate,
   addDays,
-  formatDateDe,
+  formatDayMonthDe,
   localToInstant,
   timeToMinutes,
   toLocal,
@@ -47,11 +47,20 @@ export function alarmTriggerAt(
 export interface AlarmSessionInput {
   occurrenceKey: string;
   date: IsoDate;
+  /** optional for older callers; shown on the alarm screen as `18:00–19:30` */
+  startTime?: HhMm | undefined;
   endTime: HhMm;
+  location?: string | undefined;
   title: string;
   team: string;
   status: string;
   alarmOffsetMin: number;
+}
+
+/** `Di, 10.11. · 18:00–19:30 · Halle` – the native alarm screen splits this at ` · ` (DESIGN.md §7). */
+export function alarmSubtitle(s: Pick<AlarmSessionInput, 'date' | 'startTime' | 'endTime' | 'location'>): string {
+  const time = s.startTime ? `${s.startTime}–${s.endTime}` : `bis ${s.endTime}`;
+  return [formatDayMonthDe(s.date), time, s.location ?? ''].filter(Boolean).join(' · ');
 }
 
 export interface AlarmEntry {
@@ -76,7 +85,7 @@ export function toAlarmEntry(
     key: s.occurrenceKey,
     triggerAt,
     title: alarmTitle(s.team, s.title),
-    subtitle: `${formatDateDe(s.date)} · bis ${s.endTime}`,
+    subtitle: alarmSubtitle(s),
   };
 }
 

@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- SPDX-License-Identifier: AGPL-3.0-or-later -->
+<resources>
+    <!-- light status/navigation bar icons on the light floor background -->
+    <bool name="hl_light_bars">true</bool>
+</resources>

@@ -4,5 +4,6 @@
     "lib": ["ES2023", "DOM"],
     "types": []
   },
-  "include": ["src", "test", "design"]
+  "include": ["src", "test"],
+  "exclude": ["test/tokens.test.ts"]
 }

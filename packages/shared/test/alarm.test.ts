@@ -36,7 +36,9 @@ describe('buildAlarmList', () => {
     {
       occurrenceKey: 'a',
       date: '2026-11-10',
+      startTime: '18:00',
       endTime: '19:30',
+      location: 'Halle Süd',
       title: 'Training',
       team: 'U12',
       status: 'planned',
@@ -78,9 +80,14 @@ describe('buildAlarmList', () => {
         key: 'a',
         triggerAt: Date.parse('2026-11-10T18:40:00Z'),
         title: 'U12 Training gehalten?',
-        subtitle: 'Di, 10.11.2026 · bis 19:30',
+        subtitle: 'Di, 10.11. · 18:00–19:30 · Halle Süd',
       },
     ]);
+  });
+
+  it('keeps a short subtitle without start time and place', () => {
+    const [entry] = buildAlarmList([{ ...sessions[0]!, startTime: undefined, location: '' }], new Date('2026-11-10T12:00:00Z'), quiet);
+    expect(entry!.subtitle).toBe('Di, 10.11. · bis 19:30');
   });
 });
 

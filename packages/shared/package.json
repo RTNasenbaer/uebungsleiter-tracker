@@ -8,8 +8,8 @@
     ".": "./src/index.ts"
   },
   "scripts": {
-    "build": "tsc -p tsconfig.json --noEmit",
-    "check": "tsc -p tsconfig.json --noEmit",
+    "build": "tsc -p tsconfig.json --noEmit && tsc -p design/tsconfig.json --noEmit",
+    "check": "tsc -p tsconfig.json --noEmit && tsc -p design/tsconfig.json --noEmit",
     "test": "vitest run"
   },
   "dependencies": {
@@ -17,6 +17,7 @@
   },
   "devDependencies": {
     "typescript": "~5.9.3",
-    "vitest": "~4.1.12"
+    "vitest": "~4.1.12",
+    "@types/node": "^22.18.0"
   }
 }

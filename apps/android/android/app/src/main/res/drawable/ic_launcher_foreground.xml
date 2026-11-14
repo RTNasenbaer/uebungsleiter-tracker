@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- SPDX-License-Identifier: AGPL-3.0-or-later – ball logo (own drawing, DESIGN.md §13) -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android" android:width="108dp" android:height="108dp" android:viewportWidth="108" android:viewportHeight="108">
+    <path android:fillColor="@color/hl_ball_400" android:strokeColor="@color/hl_navy_900" android:strokeWidth="4.5" android:pathData="M54,23.25a30.75,30.75 0,1 0,0.0001 0z" />
+    <group android:pivotX="54" android:pivotY="54" android:rotation="0">
+        <path android:strokeColor="@color/hl_navy_900" android:strokeWidth="4.8" android:strokeLineCap="round" android:pathData="M54,54c0,-13.2 7.8,-21.6 20.7,-21.3" />
+    </group>
+    <group android:pivotX="54" android:pivotY="54" android:rotation="120">
+        <path android:strokeColor="@color/hl_navy_900" android:strokeWidth="4.8" android:strokeLineCap="round" android:pathData="M54,54c0,-13.2 7.8,-21.6 20.7,-21.3" />
+    </group>
+    <group android:pivotX="54" android:pivotY="54" android:rotation="240">
+        <path android:strokeColor="@color/hl_navy_900" android:strokeWidth="4.8" android:strokeLineCap="round" android:pathData="M54,54c0,-13.2 7.8,-21.6 20.7,-21.3" />
+    </group>
+</vector>
