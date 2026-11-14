@@ -83,24 +83,14 @@ git switch main && git pull && git tag v0.1.0 && git push origin v0.1.0
 **Erwartet:** Vollbild „Test-Alarm“ mit Ton erscheint über dem Sperrbildschirm; „JA, gehalten“ schließt ihn.
 **Rückmeldung an Claude:** „HS-06 ok“ oder was stattdessen passiert ist (Screenshot hilft).
 
-## [ ] HS-07: Wöchentliches Datenbank-Backup aktivieren (⏱ ~3 min · blockiert: Backup)
+## [X] HS-07: Wöchentliches Datenbank-Backup (erledigt durch HS-04)
 
-**Warum:** `backup.yml` sichert die D1 jeden Montag verschlüsselt als Artefakt – ohne Passphrase wird es übersprungen.
-**Schritte:**
+`scripts/set-release-secrets.sh` setzt `BACKUP_PASSPHRASE` mit (Datei `release-keystore/backup-passphrase.txt`).
+Manueller Lauf von „D1 backup“ war grün. Wiederherstellen:
+`openssl enc -d -aes-256-cbc -pbkdf2 -iter 200000 -in d1-backup.sql.enc -out backup.sql -pass file:backup-passphrase.txt`.
 
-1. Lange Passphrase erzeugen (z. B. Bitwarden-Generator, ≥ 6 Wörter) und in Bitwarden speichern.
-2. GitHub → Repo → Settings → Secrets and variables → Actions → New repository secret
-   → Name `BACKUP_PASSPHRASE`, Wert = Passphrase.
-3. Actions → „D1 backup“ → „Run workflow“.
+## [X] HS-08: Samsung-Akkusparen ausnehmen
 
-**Erwartet:** Lauf grün, Artefakt `d1-backup-<Nr.>` vorhanden.
-Wiederherstellen: `openssl enc -d -aes-256-cbc -pbkdf2 -iter 200000 -in d1-backup.sql.enc -out backup.sql`.
-**Rückmeldung an Claude:** „HS-07 ok“.
-
-## [ ] HS-08: Samsung-Akkusparen ausnehmen (⏱ ~1 min · braucht: Handy)
-
-**Warum:** One UI schläfert Apps trotz „Akku-Optimierung aus“ ein; das betrifft den 6-h-Abgleich (Alarme selbst
-laufen über `setAlarmClock` und sind davon nicht betroffen).
-**Schritte:** Einstellungen → Akku → Hintergrundnutzungslimits → **Nie schlafende Apps** → `+` → Übungsleiter-Tracker.
-Außerdem: App-Info → Akku → **Nicht eingeschränkt**.
+App-Info → Akku → **Nicht eingeschränkt**. Die App erscheint dann nicht mehr in der Auswahl „Nie schlafende Apps“ –
+das ist auf One UI 8 normal und nicht nötig.
 **Rückmeldung an Claude:** nur falls ein echter Trainings-Alarm ausbleibt (Uhrzeit + Training nennen).
