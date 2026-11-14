@@ -4,5 +4,5 @@
     "lib": ["ES2023", "DOM"],
     "types": []
   },
-  "include": ["src", "test"]
+  "include": ["src", "test", "design"]
 }

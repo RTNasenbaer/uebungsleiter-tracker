@@ -16,3 +16,5 @@ PROMPT.md
 SETUP.md
 .claude
 .devcontainer
+apps/web/src/lib/styles/tokens.css
+apps/web/src/lib/styles/tokens.gen.ts
