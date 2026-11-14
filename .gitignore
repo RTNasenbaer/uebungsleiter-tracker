@@ -28,3 +28,4 @@ release-keystore/
 
 # Locally installed third-party skills (not committed)
 .claude/skills/ext-*/
+.claude/settings.local.json
