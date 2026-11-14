@@ -6,7 +6,8 @@
   "type": "module",
   "scripts": {
     "e2e": "playwright test",
-    "check": "tsc --noEmit -p tsconfig.json"
+    "check": "tsc --noEmit -p tsconfig.json",
+    "screens": "playwright test -c playwright.screens.config.ts"
   },
   "devDependencies": {
     "@axe-core/playwright": "^4.14.0",
