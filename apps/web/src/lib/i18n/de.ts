@@ -169,6 +169,7 @@ export const de = {
     deleteSingle: 'Termin löschen',
     note: 'Notiz',
     deleted: 'Termin gelöscht',
+    seriesMissing: 'Die Serie zu diesem Termin gibt es nicht mehr. Lade die Seite neu.',
   },
   series: {
     title: 'Trainings',
@@ -283,6 +284,11 @@ export const de = {
     importDone: (c: number, u: number, s: number) => `${c} angelegt, ${u} aktualisiert, ${s} übersprungen`,
     restoreDone: 'Backup wiederhergestellt',
     reportTotal: 'Gesamtsumme',
+    // column titles exactly as on the club form (§7)
+    colMonth: (y: number) => `Monat Kalenderjahr ${y}`,
+    colGroups: 'Trainingsgruppe(n)',
+    colUnits: 'Trainingseinheiten (90–120 Minuten) pro Monat',
+    sum: 'Summe:',
   },
   devices: {
     title: 'Geräte',
@@ -347,7 +353,7 @@ export const de = {
     defaultPay: 'Standard-Vergütung pro Termin (€)',
     taxFree: 'Freibetrag Übungsleiterpauschale (€)',
     autoConfirm: 'Automatisch bestätigen',
-    autoConfirmHint: '„Nur Ausnahmen melden“: unbeantwortete Termine gelten nach dieser Zeit als gehalten.',
+    autoConfirmHint: '„Nur Ausnahmen melden“: Noch offene Termine gelten nach dieser Zeit als gehalten.',
     autoConfirmOff: 'aus',
     autoConfirmHours: (h: number) => `nach ${h} Stunden`,
     alarm: 'Alarm',

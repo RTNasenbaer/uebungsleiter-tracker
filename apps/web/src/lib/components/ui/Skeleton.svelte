@@ -1,7 +1,12 @@
 <!-- SPDX-License-Identifier: AGPL-3.0-or-later -->
 <!-- Skeleton in the shape of the later content (no spinner for lists). -->
 <script lang="ts">
-  let { lines = 2, rows = 3, label = 'Lädt …' }: { lines?: number; rows?: number; label?: string } = $props();
+  import { de } from '$lib/i18n/de';
+  let {
+    lines = 2,
+    rows = 3,
+    label = de.common.loading,
+  }: { lines?: number; rows?: number; label?: string } = $props();
 </script>
 
 <div role="status" aria-label={label} class="flex flex-col gap-3">

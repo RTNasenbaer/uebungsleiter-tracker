@@ -14,7 +14,15 @@
   html {
     -webkit-text-size-adjust: 100%;
     -webkit-tap-highlight-color: transparent;
+    touch-action: manipulation;
     background: var(--hl-bg);
+    /* keep focused fields clear of the fixed bottom bars on phones (WCAG 2.4.11) */
+    scroll-padding-bottom: 10rem;
+  }
+  @media (min-width: 768px) {
+    html {
+      scroll-padding-bottom: 2rem;
+    }
   }
   body {
     min-height: 100dvh;

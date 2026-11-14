@@ -147,7 +147,7 @@
 </section>
 
 <div class="grid gap-8 lg:grid-cols-[minmax(0,2fr)_minmax(0,1fr)]">
-  <section aria-labelledby="open-h">
+  <section aria-labelledby="open-h" class="min-w-0">
     <SectionHeader id="open-h" title={de.home.openTitle} count={loaded ? open.length : undefined} />
     {#if !loaded}
       <Skeleton rows={2} />
@@ -201,7 +201,7 @@
     {/if}
   </section>
 
-  <section aria-labelledby="next-h">
+  <section aria-labelledby="next-h" class="min-w-0">
     <SectionHeader id="next-h" title={de.home.next} />
     {#if next}
       <Card class="flex items-center gap-5">

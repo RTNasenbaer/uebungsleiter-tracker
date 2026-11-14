@@ -127,7 +127,7 @@
     await run(async () => {
       const body = patchBody();
       const series = (await api.series()).find((x) => x.id === s.seriesId);
-      if (!series) throw new Error('Training nicht gefunden');
+      if (!series) throw new Error(de.sessions.seriesMissing);
       const { id: _id, ...rest } = series;
       const updated = {
         ...rest,

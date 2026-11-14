@@ -146,20 +146,20 @@
     </Card>
 
     <!-- preview: a sheet of paper, also in dark mode -->
+    <!-- svelte-ignore a11y_no_noninteractive_tabindex -->
     <figure
       class="overflow-x-auto rounded-sm bg-paper p-5 text-on-paper shadow-float md:p-8"
       aria-labelledby="preview-cap"
+      tabindex="0"
     >
       <figcaption id="preview-cap" class="sr-only">{de.export.preview}</figcaption>
       <p class="mb-4 font-score text-2xl font-bold">{de.export.reportTitle(year)}</p>
       <table class="w-full border-collapse text-sm" data-testid="report-preview">
         <thead>
           <tr>
-            <th class="border border-paper-line p-2 text-left font-semibold">Monat Kalenderjahr {year}</th>
-            <th class="border border-paper-line p-2 text-left font-semibold">Trainingsgruppe(n)</th>
-            <th class="border border-paper-line p-2 font-semibold"
-              >Trainingseinheiten (90–120 Minuten) pro Monat</th
-            >
+            <th class="border border-paper-line p-2 text-left font-semibold">{de.export.colMonth(year)}</th>
+            <th class="border border-paper-line p-2 text-left font-semibold">{de.export.colGroups}</th>
+            <th class="border border-paper-line p-2 font-semibold">{de.export.colUnits}</th>
           </tr>
         </thead>
         <tbody>
@@ -172,7 +172,7 @@
           {/each}
           <tr class="font-bold">
             <td class="border border-paper-line p-2"></td>
-            <td class="border border-paper-line p-2 text-right">Summe:</td>
+            <td class="border border-paper-line p-2 text-right">{de.export.sum}</td>
             <td class="border border-paper-line p-2 text-center font-score text-lg" data-testid="report-total"
               >{report.totalUnits}</td
             >

@@ -15,6 +15,7 @@
     class: klass = '',
     inputClass = '',
     id: idProp,
+    autocomplete = 'off',
     ...rest
   }: {
     label: string;
@@ -40,6 +41,7 @@
     class="{controlClass} {type === 'date' || type === 'time' ? 'appearance-none' : ''} {inputClass}"
     aria-invalid={error ? 'true' : undefined}
     aria-describedby={describedBy(id, help, error)}
+    {autocomplete}
     {...rest}
   />
 </Field>

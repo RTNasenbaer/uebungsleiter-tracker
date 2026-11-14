@@ -44,7 +44,7 @@
 </script>
 
 <div
-  class="relative flex items-stretch overflow-hidden rounded-md border-hl {highlight
+  class="relative flex min-w-0 items-stretch overflow-hidden rounded-md border-hl {highlight
     ? 'border-transparent bg-accent-soft'
     : 'border-line bg-surface'}"
   data-testid={testid}
@@ -53,7 +53,12 @@
   <span class="w-[var(--hl-size-stripe)] shrink-0 {stripe[s.status]}" aria-hidden="true"></span>
   {#if selectable}
     <div class="flex items-center pl-2">
-      <Checkbox checked={selected} onchange={onselect} hideLabel label="{label} {s.team} auswählen" />
+      <Checkbox
+        checked={selected}
+        onchange={onselect}
+        hideLabel
+        label={de.sessions.selectRow(`${label} ${s.team}`)}
+      />
     </div>
   {/if}
   <div class="flex min-w-0 flex-1 flex-wrap items-center gap-x-4 gap-y-2 px-4 py-3">

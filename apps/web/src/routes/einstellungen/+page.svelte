@@ -125,6 +125,7 @@
           label={de.settings.reportRecipient}
           bind:value={s.reportRecipient}
           maxlength={200}
+          spellcheck={false}
         />
         <TextField
           label={de.settings.reportDeadline}
