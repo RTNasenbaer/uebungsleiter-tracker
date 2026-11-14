@@ -133,8 +133,7 @@
           class="rounded bg-white p-2"
         />
         <p class="font-mono text-3xl font-bold tracking-widest" data-testid="pairing-code">
-          {pairing.code.slice(0, 4)}
-          {pairing.code.slice(4)}
+          {`${pairing.code.slice(0, 4)} ${pairing.code.slice(4)}`}
         </p>
         <p class="text-sm text-ink-muted">{de.devices.pairValid(Math.ceil(secondsLeft / 60))}</p>
       {:else}
