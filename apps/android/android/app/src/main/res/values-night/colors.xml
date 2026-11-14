@@ -35,6 +35,9 @@
     <color name="hl_court">#E46A3C</color>
     <color name="hl_overlay">#990B1426</color>
     <color name="hl_qr_bg">#FFFFFF</color>
+    <color name="hl_paper">#FFFFFF</color>
+    <color name="hl_on_paper">#0E1B33</color>
+    <color name="hl_paper_line">#5B6475</color>
     <color name="hl_alarm_bg">#0B1426</color>
     <color name="hl_alarm_text">#FFFFFF</color>
     <color name="hl_alarm_muted">#9AA6BC</color>

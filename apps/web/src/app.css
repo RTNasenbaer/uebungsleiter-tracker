@@ -7,7 +7,6 @@
 @import '@fontsource/barlow-condensed/latin-600.css';
 @import '@fontsource/barlow-condensed/latin-700.css';
 @import './lib/styles/tokens.css';
-@import './lib/styles/legacy.css';
 
 @custom-variant dark (&:where([data-theme='dark'], [data-theme='dark'] *));
 
@@ -176,4 +175,12 @@
 }
 @utility border-r-hl {
   border-right-width: var(--hl-size-line);
+}
+
+/* Hatching for closures (Ferien/Ausfälle) – thin diagonal field lines */
+@utility bg-hatch {
+  background-image: repeating-linear-gradient(135deg, var(--hl-line) 0 1.5px, transparent 1.5px 7px);
+}
+@utility bg-hatch-strong {
+  background-image: repeating-linear-gradient(135deg, var(--hl-line-strong) 0 1px, transparent 1px 3px);
 }

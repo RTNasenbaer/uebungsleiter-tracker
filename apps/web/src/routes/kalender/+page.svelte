@@ -139,10 +139,7 @@
               ? 'border-r-hl'
               : ''} {i < gridDays.length - 7 ? 'border-b-hl' : ''} border-line {inMonth
               ? ''
-              : 'text-muted'} {selectedDay === d ? 'bg-surface-sunken' : ''}"
-            style:background-image={closed
-              ? 'repeating-linear-gradient(135deg, var(--hl-line) 0 1.5px, transparent 1.5px 7px)'
-              : undefined}
+              : 'text-muted'} {selectedDay === d ? 'bg-surface-sunken' : ''} {closed ? 'bg-hatch' : ''}"
             aria-pressed={selectedDay === d}
             aria-label="{formatDateDe(d)}, {de.calendar.sessionsCount(list.length)}{closed
               ? `, ${closed}`
@@ -175,11 +172,7 @@
         <li class="flex items-center gap-1.5"><StatusDot status={st} />{de.status[st]}</li>
       {/each}
       <li class="flex items-center gap-1.5">
-        <span
-          class="block size-3 border border-line"
-          style:background-image="repeating-linear-gradient(135deg, var(--hl-line-strong) 0 1px, transparent
-          1px 3px)"
-        ></span>{de.calendar.closed}
+        <span class="block size-3 border border-line bg-hatch-strong"></span>{de.calendar.closed}
       </li>
     </ul>
   </div>

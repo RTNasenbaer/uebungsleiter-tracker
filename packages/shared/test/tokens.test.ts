@@ -34,6 +34,7 @@ const TEXT_PAIRS: [fg: string, bg: string][] = [
   ['on-scoreboard', 'scoreboard'],
   ['scoreboard-muted', 'scoreboard'],
   ['alarm-text', 'alarm-bg'],
+  ['on-paper', 'paper'],
   ['alarm-muted', 'alarm-bg'],
   ['alarm-on-accent', 'alarm-accent'],
 ];
