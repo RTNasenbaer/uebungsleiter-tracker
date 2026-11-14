@@ -2,15 +2,15 @@
 
 Stand: 2026-11-14
 
-| Phase           | Inhalt                                                                                                                      | Status                                    |
-| --------------- | --------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------- |
-| 1 Fundament     | pnpm-Monorepo, TS strict, ESLint/Prettier, Vitest, Playwright, CI, Wrangler + lokale D1, Drizzle-Schema/Migration, Seed     | ✅                                        |
-| 2 Auth & Geräte | GitHub-OAuth (arctic), Sessions (Lucia-Stil, 60 Tage rolling), Allowlist, Test-Login, Geräte, Pairing (QR/Code, Rate-Limit) | ✅ (echter GitHub-Login wartet auf HS-03) |
-| 3 Domäne        | Generator (Wochentage, 2-wöchentlich, Ferien, Vergangenheit, DST, Overrides, Split), CRUD, Offen-Liste, Bulk, Cron          | ✅                                        |
-| 4 Web-UI        | Start, Offen, Kalender, Termine, Trainings, „+ Neu“, Ausfälle, Einstellungen, Geräte, In-App-Abfrage, Über                  | ✅                                        |
-| 5 Export/Import | Antrag-PDF, CSV, XLSX, JSON-Backup, Import mit Duplikatprüfung, `.ics`-Ferien                                               | ✅                                        |
-| 6 Android       | Capacitor, Kotlin-Plugin `TrainingAlarm`, Einrichtungsseite, Pairing, Sync-Worker, Antwort-Queue, Teilen-Dialog, Tests      | ✅ (Test auf echtem Handy: HS-06)         |
-| 7 Betrieb       | Deploy-, Release-, Backup-Workflow, Keystore-Scripts, README, HUMAN_STEPS                                                   | ✅ (Secrets: HS-02–HS-04)                 |
+| Phase           | Inhalt                                                                                                                      | Status                                |
+| --------------- | --------------------------------------------------------------------------------------------------------------------------- | ------------------------------------- |
+| 1 Fundament     | pnpm-Monorepo, TS strict, ESLint/Prettier, Vitest, Playwright, CI, Wrangler + lokale D1, Drizzle-Schema/Migration, Seed     | ✅                                    |
+| 2 Auth & Geräte | GitHub-OAuth (arctic), Sessions (Lucia-Stil, 60 Tage rolling), Allowlist, Test-Login, Geräte, Pairing (QR/Code, Rate-Limit) | ✅ (live, GitHub-Login getestet)      |
+| 3 Domäne        | Generator (Wochentage, 2-wöchentlich, Ferien, Vergangenheit, DST, Overrides, Split), CRUD, Offen-Liste, Bulk, Cron          | ✅                                    |
+| 4 Web-UI        | Start, Offen, Kalender, Termine, Trainings, „+ Neu“, Ausfälle, Einstellungen, Geräte, In-App-Abfrage, Über                  | ✅                                    |
+| 5 Export/Import | Antrag-PDF, CSV, XLSX, JSON-Backup, Import mit Duplikatprüfung, `.ics`-Ferien                                               | ✅                                    |
+| 6 Android       | Capacitor, Kotlin-Plugin `TrainingAlarm`, Einrichtungsseite, Pairing, Sync-Worker, Antwort-Queue, Teilen-Dialog, Tests      | ✅ (v0.1.0, Galaxy A53/Android 16 ok) |
+| 7 Betrieb       | Deploy-, Release-, Backup-Workflow, Keystore-Scripts, README, HUMAN_STEPS                                                   | ✅ (live; Backup wartet auf HS-07)    |
 
 ## Tests (lokal)
 
@@ -24,6 +24,12 @@ Stand: 2026-11-14
 
 Alle Checks grün: Lint/Typecheck/Unit/Build, Playwright mit allen 5 Browsern/Geräten, Android
 (ktlint, detekt, Lint, JVM-Tests, Roborazzi-Verify, Debug-APK), Instrumented-Tests auf API 34 und 35.
+
+## Live-Stand
+
+- Website: `*.workers.dev` (Deploy grün), Release `v0.1.0` mit signierter APK.
+- Echtes Gerät: Samsung Galaxy A53 5G, Android 16 / One UI 8.0 – Kopplung, Alarm-Einrichtung, Vollbild-Test-Alarm
+  über Sperrbildschirm mit Ton ok.
 
 ## Offene Punkte / Ideen (Phase 8)
 
