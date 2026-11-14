@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- SPDX-License-Identifier: AGPL-3.0-or-later -->
+<resources>
+    <color name="alarm_background">#0F172A</color>
+    <color name="alarm_text">#F1F5F9</color>
+    <color name="alarm_text_muted">#CBD5E1</color>
+    <color name="alarm_primary">#60A5FA</color>
+    <color name="alarm_yes">#15803D</color>
+    <color name="alarm_no">#B91C1C</color>
+    <color name="alarm_later_bg">#334155</color>
+    <color name="alarm_later_text">#F1F5F9</color>
+</resources>

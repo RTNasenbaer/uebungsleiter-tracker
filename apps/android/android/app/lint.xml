@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- SPDX-License-Identifier: AGPL-3.0-or-later -->
+<lint>
+    <!-- Sideload app, not distributed via Play: USE_EXACT_ALARM is intended for alarm-clock-like apps -->
+    <issue id="ExactAlarm" severity="warning" />
+    <issue id="UseFullScreenIntent" severity="ignore" />
+</lint>

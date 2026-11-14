@@ -1,0 +1,92 @@
+/* SPDX-License-Identifier: AGPL-3.0-or-later */
+@import 'tailwindcss';
+
+/* Design tokens – function first, but keep them in one place */
+@theme {
+  --color-brand-50: #eff6ff;
+  --color-brand-100: #dbeafe;
+  --color-brand-600: #2563eb;
+  --color-brand-700: #1d4ed8;
+  --color-brand-800: #1e40af;
+
+  --color-status-planned: #475569;
+  --color-status-pending: #92400e;
+  --color-status-held: #15803d;
+  --color-status-not-held: #b91c1c;
+  --color-status-cancelled: #334155;
+
+  --color-surface: #ffffff;
+  --color-surface-muted: #f1f5f9;
+  --color-ink: #0f172a;
+  --color-ink-muted: #475569;
+  --color-line: #cbd5e1;
+
+  --radius-card: 0.75rem;
+  --spacing-touch: 3rem; /* 48 dp minimum touch target */
+}
+
+@layer base {
+  html {
+    color-scheme: light dark;
+    -webkit-tap-highlight-color: transparent;
+  }
+  body {
+    @apply bg-surface-muted text-ink antialiased;
+    font-family:
+      system-ui,
+      -apple-system,
+      'Segoe UI',
+      Roboto,
+      sans-serif;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --color-surface: #0f172a;
+      --color-surface-muted: #020617;
+      --color-ink: #f1f5f9;
+      --color-ink-muted: #cbd5e1;
+      --color-line: #334155;
+      --color-brand-50: #172554;
+      --color-brand-100: #1e3a8a;
+      --color-status-pending: #f59e0b;
+      --color-status-held: #4ade80;
+      --color-status-not-held: #f87171;
+      --color-status-planned: #94a3b8;
+      --color-status-cancelled: #94a3b8;
+    }
+  }
+  :focus-visible {
+    @apply outline-2 outline-offset-2 outline-brand-600;
+  }
+}
+
+@utility card {
+  @apply rounded-card border border-line bg-surface p-4 shadow-sm;
+}
+@utility btn {
+  @apply inline-flex min-h-touch cursor-pointer items-center justify-center gap-2 rounded-lg px-4 font-medium transition-colors disabled:cursor-not-allowed disabled:opacity-50;
+}
+@utility btn-primary {
+  @apply btn bg-brand-700 text-white hover:bg-brand-800;
+}
+@utility btn-secondary {
+  @apply btn border border-line bg-surface text-ink hover:bg-surface-muted;
+}
+@utility btn-danger {
+  @apply btn bg-red-700 text-white hover:bg-red-800;
+}
+@utility btn-success {
+  @apply btn bg-green-700 text-white hover:bg-green-800;
+}
+@utility input {
+  @apply min-h-touch w-full rounded-lg border border-line bg-surface px-3 text-ink placeholder:text-ink-muted;
+}
+@utility label {
+  @apply mb-1 block text-sm font-medium text-ink-muted;
+}
+@utility h1 {
+  @apply mb-4 text-2xl font-bold;
+}
+@utility h2 {
+  @apply mb-3 text-lg font-semibold;
+}

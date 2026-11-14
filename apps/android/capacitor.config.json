@@ -1,0 +1,11 @@
+{
+  "appId": "de.uebungsleiter.tracker",
+  "appName": "Übungsleiter",
+  "webDir": "../web/build",
+  "android": {
+    "allowMixedContent": false
+  },
+  "server": {
+    "androidScheme": "https"
+  }
+}

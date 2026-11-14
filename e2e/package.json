@@ -1,0 +1,20 @@
+{
+  "name": "@ult/e2e",
+  "version": "0.1.0",
+  "private": true,
+  "license": "AGPL-3.0-or-later",
+  "type": "module",
+  "scripts": {
+    "e2e": "playwright test",
+    "check": "tsc --noEmit -p tsconfig.json"
+  },
+  "devDependencies": {
+    "@axe-core/playwright": "^4.14.0",
+    "@playwright/test": "^1.65.1",
+    "@types/node": "^22.18.0",
+    "@ult/shared": "workspace:*",
+    "exceljs": "^4.4.0",
+    "pdfjs-dist": "^5.4.0",
+    "typescript": "~5.9.3"
+  }
+}

@@ -1,0 +1,10 @@
+// SPDX-License-Identifier: AGPL-3.0-or-later
+import { drizzle } from 'drizzle-orm/d1';
+import * as schema from './schema';
+
+export function createDb(d1: D1Database) {
+  return drizzle(d1, { schema });
+}
+
+export type Db = ReturnType<typeof createDb>;
+export { schema };

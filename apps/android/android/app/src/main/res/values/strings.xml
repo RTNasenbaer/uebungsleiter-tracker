@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- SPDX-License-Identifier: AGPL-3.0-or-later -->
+<resources>
+    <string name="app_name">Übungsleiter</string>
+    <string name="title_activity_main">Übungsleiter</string>
+    <string name="package_name">de.uebungsleiter.tracker</string>
+    <string name="custom_url_scheme">de.uebungsleiter.tracker</string>
+
+    <string name="alarm_channel_name">Training-Alarm</string>
+    <string name="alarm_channel_description">Vollbild-Abfrage nach jedem Training</string>
+    <string name="reminder_channel_name">Erinnerungen</string>
+    <string name="reminder_channel_description">Offene Antworten und Antrags-Frist</string>
+    <string name="alarm_question">Training gehalten?</string>
+    <string name="alarm_yes">JA, gehalten</string>
+    <string name="alarm_no">NEIN</string>
+    <string name="alarm_later">Später (%1$d min)</string>
+    <string name="alarm_note_hint">Notiz (optional)</string>
+    <string name="alarm_saved">Antwort gespeichert</string>
+    <string name="action_yes">Ja</string>
+    <string name="action_no">Nein</string>
+    <string name="action_later">Später</string>
+    <string name="test_alarm_title">Test-Alarm</string>
+    <string name="test_alarm_subtitle">So sieht der Alarm nach dem Training aus.</string>
+    <string name="open_answer_title">Noch offen: %1$s</string>
+    <string name="report_reminder_title">Übungsleiternachweis abgeben</string>
+    <string name="report_reminder_text">Frist: %1$s – Antrag in der App erstellen.</string>
+</resources>

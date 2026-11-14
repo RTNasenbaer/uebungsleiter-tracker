@@ -1,0 +1,40 @@
+{
+  "name": "uebungsleiter-tracker",
+  "private": true,
+  "license": "AGPL-3.0-or-later",
+  "type": "module",
+  "packageManager": "pnpm@12.18.0",
+  "engines": {
+    "node": ">=22"
+  },
+  "scripts": {
+    "dev": "concurrently -k -n api,web -c blue,green \"pnpm --filter @ult/api dev\" \"pnpm --filter @ult/web dev\"",
+    "build": "pnpm --filter @ult/shared build && pnpm --filter @ult/web build && pnpm --filter @ult/api build",
+    "check": "pnpm -r check",
+    "lint": "eslint . && prettier --check .",
+    "format": "prettier --write .",
+    "test": "pnpm -r --workspace-concurrency=1 test",
+    "test:e2e": "pnpm --filter @ult/e2e e2e",
+    "android:build": "pnpm --filter @ult/web build && pnpm --filter @ult/android sync && cd apps/android/android && ./gradlew assembleDebug",
+    "android:lint": "cd apps/android/android && ./gradlew ktlintCheck detekt lintDebug",
+    "android:test": "cd apps/android/android && ./gradlew testDebugUnitTest",
+    "android:screens": "cd apps/android/android && ./gradlew recordRoborazziDebug",
+    "verify": "pnpm lint && pnpm check && pnpm test && pnpm build && pnpm test:e2e && pnpm android:lint && pnpm android:test && pnpm android:screens",
+    "db:generate": "pnpm --filter @ult/api db:generate",
+    "db:migrate:local": "pnpm --filter @ult/api db:migrate:local",
+    "db:seed": "pnpm --filter @ult/api db:seed"
+  },
+  "devDependencies": {
+    "@eslint/js": "^9.39.0",
+    "concurrently": "^9.2.0",
+    "eslint": "^9.39.0",
+    "eslint-config-prettier": "^10.1.0",
+    "eslint-plugin-svelte": "^3.24.1",
+    "globals": "^16.0.0",
+    "prettier": "^3.10.1",
+    "prettier-plugin-svelte": "^3.4.0",
+    "prettier-plugin-tailwindcss": "^0.7.0",
+    "typescript": "~5.9.3",
+    "typescript-eslint": "^8.72.2"
+  }
+}
