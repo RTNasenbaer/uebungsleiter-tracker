@@ -91,6 +91,6 @@ Manueller Lauf von „D1 backup“ war grün. Wiederherstellen:
 
 ## [X] HS-08: Samsung-Akkusparen ausnehmen
 
-App-Info → Akku → **Nicht eingeschränkt**. Die App erscheint dann nicht mehr in der Auswahl „Nie schlafende Apps“ –
-das ist auf One UI 8 normal und nicht nötig.
+App-Info → Akku → **Nicht eingeschränkt**. Auf dem A53 (One UI 8) tauchte die App in „Nie schlafende Apps“ nicht auf;
+„Nicht eingeschränkt“ ist die stärkere Ausnahme und reicht.
 **Rückmeldung an Claude:** nur falls ein echter Trainings-Alarm ausbleibt (Uhrzeit + Training nennen).
