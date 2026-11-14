@@ -23,12 +23,9 @@
   let editing = $state<SessionDto | null>(null);
   const allSelected = $derived(open.length > 0 && selected.size === open.length);
   const groups = $derived.by(() => {
-    const map = new Map<string, SessionDto[]>();
-    for (const s of open) {
-      const key = s.date.slice(0, 7);
-      map.set(key, [...(map.get(key) ?? []), s]);
-    }
-    return [...map].map(([key, items]) => ({
+    const byMonth: Record<string, SessionDto[]> = {};
+    for (const s of open) (byMonth[s.date.slice(0, 7)] ??= []).push(s);
+    return Object.entries(byMonth).map(([key, items]) => ({
       key,
       title: `${MONTHS_DE[Number(key.slice(5)) - 1]} ${key.slice(0, 4)}`,
       items,
