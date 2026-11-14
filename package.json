@@ -14,7 +14,7 @@
     "lint": "eslint . && prettier --check .",
     "format": "prettier --write .",
     "test": "pnpm -r --workspace-concurrency=1 test",
-    "test:e2e": "pnpm --filter @ult/e2e test",
+    "test:e2e": "pnpm --filter @ult/e2e e2e",
     "android:build": "pnpm --filter @ult/web build && pnpm --filter @ult/android sync && cd apps/android/android && ./gradlew assembleDebug",
     "android:lint": "cd apps/android/android && ./gradlew ktlintCheck detekt lintDebug",
     "android:test": "cd apps/android/android && ./gradlew testDebugUnitTest",

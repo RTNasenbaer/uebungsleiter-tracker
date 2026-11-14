@@ -23,6 +23,11 @@ allprojects {
         google()
         mavenCentral()
     }
+    // kotlin-stdlib >= 1.8 contains the former -jdk7/-jdk8 artifacts; old transitive copies cause duplicate classes
+    configurations.configureEach {
+        exclude group: 'org.jetbrains.kotlin', module: 'kotlin-stdlib-jdk7'
+        exclude group: 'org.jetbrains.kotlin', module: 'kotlin-stdlib-jdk8'
+    }
 }
 
 tasks.register('clean', Delete) {
