@@ -5,7 +5,7 @@ import { Hono } from 'hono';
 import { HTTPException } from 'hono/http-exception';
 import type { Db } from '../db';
 import { devices, pairingCodes, rateLimits } from '../db/schema';
-import type { AppEnv } from '../env';
+import { type AppEnv, testRoutesEnabled } from '../env';
 import { generatePairingCode, generateToken, newId, sha256Hex } from '../lib/crypto';
 import { deviceDto } from '../lib/dto';
 import { requireAuth, requireCookieAuth } from '../lib/middleware';
@@ -38,7 +38,9 @@ export const pairRoutes = new Hono<AppEnv>().post('/', async (c) => {
   const db = c.get('db');
   const now = c.get('clock').now();
   const ip = c.req.header('cf-connecting-ip') ?? 'unknown';
-  if (!(await hitRateLimit(db, `pair:${ip}`, PAIR_RATE_LIMIT, now))) {
+  // e2e runs share one IP; in test mode a client id keeps their rate-limit buckets apart
+  const testClient = testRoutesEnabled(c.env) ? (c.req.header('x-test-client') ?? '') : '';
+  if (!(await hitRateLimit(db, `pair:${ip}:${testClient}`, PAIR_RATE_LIMIT, now))) {
     return c.json({ error: 'Zu viele Versuche. Bitte in 15 Minuten erneut versuchen.' }, 429);
   }
   const input = await parseJson(c, pairRedeemInput);

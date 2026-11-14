@@ -190,6 +190,7 @@ export const sessionRoutes = new Hono<AppEnv>()
       snoozeMinutes: cfg.snoozeMinutes,
       quietStart: cfg.quietStart,
       quietEnd: cfg.quietEnd,
+      reportDeadline: cfg.reportDeadline,
     };
     if (!device?.isAlarmDevice) return c.json({ isAlarmDevice: false, alarms: [], settings });
     await materialize(db, userId, { from: addDays(today, -1), to: addDays(today, days) }, now);
