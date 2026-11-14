@@ -66,6 +66,9 @@ test.describe('design acceptance', () => {
       for (const path of PAGES) {
         await page.goto(path);
         await expect(page.locator('h1').first()).toBeVisible();
+        // data loaded and state transitions (fast = 120 ms, e.g. disabled → enabled) finished
+        await page.waitForLoadState('networkidle');
+        await page.waitForTimeout(300);
         found.push(...(await seriousViolations(page)));
       }
       expect(found).toEqual([]);
