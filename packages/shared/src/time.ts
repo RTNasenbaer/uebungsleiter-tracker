@@ -200,6 +200,12 @@ export function formatDateDe(date: IsoDate): string {
   return `${weekdayShortDe(date)}, ${String(d).padStart(2, '0')}.${String(m).padStart(2, '0')}.${y}`;
 }
 
+/** `Mi, 11.11.` – compact form for cards and the alarm screen */
+export function formatDayMonthDe(date: IsoDate): string {
+  const [, m, d] = parseDate(date);
+  return `${weekdayShortDe(date)}, ${String(d).padStart(2, '0')}.${String(m).padStart(2, '0')}.`;
+}
+
 /** `11.11.2026` */
 export function formatDateShortDe(date: IsoDate): string {
   const [y, m, d] = parseDate(date);

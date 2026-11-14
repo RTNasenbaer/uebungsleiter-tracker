@@ -74,3 +74,31 @@ deshalb mit `BACKUP_PASSPHRASE` (AES-256, PBKDF2) verschlüsselt, bevor er als A
 Im Devcontainer fehlen die Systembibliotheken für Firefox/WebKit (Installation bräuchte root). Lokal laufen
 `chromium-desktop` und `mobile-android` (`E2E_BROWSERS=…`, fehlende Chromium-Libs per `apt-get download` nach
 `~/.cache/pw-libs` + `LD_LIBRARY_PATH`); alle 5 Projekte laufen in der CI (`playwright install --with-deps`).
+
+## ADR-014 Design „Hallenlicht“: Token-Pipeline
+
+`packages/shared/design/tokens.json` (W3C-Format) ist die einzige Quelle. `pnpm tokens` (Node-Type-Stripping, keine
+Dependency) erzeugt `tokens.css` (`:root`, `[data-theme="dark"]`, `prefers-color-scheme`), den Tailwind-`@theme inline`-Block,
+`tokens.gen.ts` (Serienfarben, `theme-color`) und Android `colors.xml`/`values-night`/`dimens.xml`. `pnpm lint` startet mit
+`pnpm tokens:check`, CI bricht also bei veralteten Dateien ab. Ein Vitest prüft alle Text/Hintergrund-Paare aus DESIGN.md §2
+(≥ 4,5:1) und Bedienelemente (≥ 3:1). Tailwinds Standardpalette ist abgeschaltet (`--color-*: initial`), so dass
+`bg-red-700` & Co. gar nicht mehr erzeugt werden. Die Farbe `text` heißt in Utilities `fg`, `text-muted` heißt `muted`
+(`text-fg`, `text-muted`).
+
+## ADR-015 Design: Abweichungen von DESIGN.md (bewusst)
+
+1. **Dark-Mode-`primary` = `navy-300` statt `ball-400`.** Mit Gelb als Primärfarbe wären im Dark Mode FAB, Primär-Buttons
+   und die Ja-Antwort gleichzeitig gelb – Widerspruch zu Prinzip 4 und Abnahmekriterium „höchstens ein gelbes Element“.
+   `navy-300` mit `navy-950`-Text hat 7,6:1.
+2. **Eingabefelder bekommen `line-strong` (`slate-600`/`slate-400`) als Rahmen**, nicht `line`: `line-light` auf Weiß
+   hat 1,4:1, WCAG 1.4.11 verlangt 3:1 für Bedienelement-Grenzen (Barrierefreiheit hat Vorrang).
+3. **Fokus-Ring zweifarbig** (`navy` innen als 2-px-Schatten, `ball-400` außen als 3-px-Outline): so ist er auf hellem
+   und dunklem Grund ≥ 3:1 sichtbar, das gelbe Element ist hier ein Zustand, kein Akzent.
+4. **Statusmarker zählen nicht als „Ball“.** Badge an „Start“, gelber Streifen und Status „offen“ sind Statusfarben wie die
+   Kalenderpunkte. Die Regel „ein Gelb pro Viewport“ gilt für Aktions- und Hervorhebungsflächen: auf Start trägt nur die
+   oberste offene Frage den gelben Ja-Button und den `ball-200`-Hintergrund, weitere offene Termine stehen kompakt darunter.
+5. **Fortschritt „Spielfeld“** nutzt auf der Anzeigetafel in beiden Modi `navy-300` (die Tafel ist immer dunkel;
+   `navy-500` hätte dort < 3:1).
+6. **GitHub-Icon** stammt aus Primer Octicons (MIT): Lucide 1.x enthält keine Markenlogos mehr.
+7. Der Skill `ext-bencium-innovative-ux-designer` verbietet SVG; DESIGN.md und der Auftrag verlangen eigene SVGs für
+   Ball-Logo und Ballnaht → Auftrag hat Vorrang. Die Richtungsentwürfe des Skills entfallen (Richtung ist festgelegt).

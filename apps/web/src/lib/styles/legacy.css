@@ -1,0 +1,53 @@
+/* SPDX-License-Identifier: AGPL-3.0-or-later */
+/* TEMPORARY: old utility names mapped onto Hallenlicht tokens while pages are migrated. Delete when empty. */
+@theme inline {
+  --color-ink: var(--hl-text);
+  --color-ink-muted: var(--hl-text-muted);
+  --color-surface-muted: var(--hl-surface-sunken);
+  --color-brand-50: var(--hl-surface-sunken);
+  --color-brand-100: var(--hl-surface-sunken);
+  --color-brand-600: var(--hl-primary);
+  --color-brand-700: var(--hl-primary);
+  --color-brand-800: var(--hl-primary-hover);
+  --color-status-planned: var(--hl-planned);
+  --color-status-pending: var(--hl-on-pending);
+  --color-status-held: var(--hl-held);
+  --color-status-not-held: var(--hl-not-held);
+  --color-status-cancelled: var(--hl-cancelled);
+  --color-white: var(--hl-on-primary);
+  --radius-card: var(--hl-radius-md);
+  --radius-lg: var(--hl-radius-sm);
+}
+@utility card {
+  border-radius: var(--hl-radius-md);
+  border: var(--hl-size-line) solid var(--hl-line);
+  background: var(--hl-surface);
+  padding: 1rem;
+}
+@utility btn {
+  @apply inline-flex min-h-touch cursor-pointer items-center justify-center gap-2 rounded-sm px-4 font-medium disabled:cursor-not-allowed disabled:opacity-50;
+}
+@utility btn-primary {
+  @apply btn bg-primary text-on-primary hover:bg-primary-hover;
+}
+@utility btn-secondary {
+  @apply btn border-hl border-line-strong bg-surface text-fg hover:bg-surface-sunken;
+}
+@utility btn-danger {
+  @apply btn bg-danger text-on-danger;
+}
+@utility btn-success {
+  @apply btn bg-accent text-on-accent hover:bg-accent-hover;
+}
+@utility input {
+  @apply min-h-touch w-full rounded-sm border-hl border-line-strong bg-surface px-3 text-fg placeholder:text-muted;
+}
+@utility label {
+  @apply mb-1 block text-sm font-medium text-muted;
+}
+@utility h1 {
+  @apply mb-4 font-score text-2xl font-bold;
+}
+@utility h2 {
+  @apply mb-3 text-lg font-semibold;
+}

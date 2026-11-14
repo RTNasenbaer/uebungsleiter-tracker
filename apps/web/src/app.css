@@ -1,92 +1,179 @@
 /* SPDX-License-Identifier: AGPL-3.0-or-later */
+/* Design Sheet „Hallenlicht“ – docs/DESIGN.md. Colors/sizes come only from tokens.css (generated). */
 @import 'tailwindcss';
+@import '@fontsource/barlow/latin-400.css';
+@import '@fontsource/barlow/latin-500.css';
+@import '@fontsource/barlow/latin-600.css';
+@import '@fontsource/barlow-condensed/latin-600.css';
+@import '@fontsource/barlow-condensed/latin-700.css';
+@import './lib/styles/tokens.css';
+@import './lib/styles/legacy.css';
 
-/* Design tokens – function first, but keep them in one place */
-@theme {
-  --color-brand-50: #eff6ff;
-  --color-brand-100: #dbeafe;
-  --color-brand-600: #2563eb;
-  --color-brand-700: #1d4ed8;
-  --color-brand-800: #1e40af;
-
-  --color-status-planned: #475569;
-  --color-status-pending: #92400e;
-  --color-status-held: #15803d;
-  --color-status-not-held: #b91c1c;
-  --color-status-cancelled: #334155;
-
-  --color-surface: #ffffff;
-  --color-surface-muted: #f1f5f9;
-  --color-ink: #0f172a;
-  --color-ink-muted: #475569;
-  --color-line: #cbd5e1;
-
-  --radius-card: 0.75rem;
-  --spacing-touch: 3rem; /* 48 dp minimum touch target */
-}
+@custom-variant dark (&:where([data-theme='dark'], [data-theme='dark'] *));
 
 @layer base {
   html {
-    color-scheme: light dark;
+    -webkit-text-size-adjust: 100%;
     -webkit-tap-highlight-color: transparent;
+    background: var(--hl-bg);
   }
   body {
-    @apply bg-surface-muted text-ink antialiased;
-    font-family:
-      system-ui,
-      -apple-system,
-      'Segoe UI',
-      Roboto,
-      sans-serif;
+    min-height: 100dvh;
+    background: var(--hl-bg);
+    color: var(--hl-text);
+    font-family: var(--hl-font-sans);
+    font-size: var(--hl-text-base);
+    line-height: var(--hl-leading-text);
+    /* "Zahlen wie auf der Anzeigetafel" */
+    font-variant-numeric: tabular-nums;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
   }
-  @media (prefers-color-scheme: dark) {
-    :root {
-      --color-surface: #0f172a;
-      --color-surface-muted: #020617;
-      --color-ink: #f1f5f9;
-      --color-ink-muted: #cbd5e1;
-      --color-line: #334155;
-      --color-brand-50: #172554;
-      --color-brand-100: #1e3a8a;
-      --color-status-pending: #f59e0b;
-      --color-status-held: #4ade80;
-      --color-status-not-held: #f87171;
-      --color-status-planned: #94a3b8;
-      --color-status-cancelled: #94a3b8;
-    }
+  h1,
+  h2,
+  h3 {
+    text-wrap: balance;
   }
+  a {
+    color: inherit;
+  }
+  /* Two-tone focus ring: navy close to the element, ball yellow outside – visible on every surface */
   :focus-visible {
-    @apply outline-2 outline-offset-2 outline-brand-600;
+    outline: 3px solid var(--hl-focus-outer);
+    outline-offset: 2px;
+    box-shadow: 0 0 0 2px var(--hl-focus-inner);
+  }
+  ::selection {
+    background: var(--hl-accent-soft);
+    color: var(--hl-text);
+  }
+  input,
+  select,
+  textarea,
+  button {
+    font: inherit;
+    color: inherit;
+  }
+  [hidden] {
+    display: none !important;
   }
 }
 
-@utility card {
-  @apply rounded-card border border-line bg-surface p-4 shadow-sm;
+/* Feldlinien-Label: small caps label above sections / page titles */
+@utility label-caps {
+  font-family: var(--hl-font-sans);
+  font-weight: 600;
+  font-size: 0.8125rem;
+  line-height: 1.25;
+  letter-spacing: var(--hl-tracking-label);
+  text-transform: uppercase;
+  color: var(--hl-text-muted);
 }
-@utility btn {
-  @apply inline-flex min-h-touch cursor-pointer items-center justify-center gap-2 rounded-lg px-4 font-medium transition-colors disabled:cursor-not-allowed disabled:opacity-50;
+
+/* Barlow Condensed for scoreboard numbers and titles */
+@utility font-score {
+  font-family: var(--hl-font-display);
+  font-variant-numeric: tabular-nums;
+  line-height: var(--hl-leading-display);
 }
-@utility btn-primary {
-  @apply btn bg-brand-700 text-white hover:bg-brand-800;
+
+@utility transition-press {
+  transition-property: transform, background-color, border-color, color, opacity;
+  transition-duration: var(--hl-duration-fast);
+  transition-timing-function: var(--hl-ease-standard);
 }
-@utility btn-secondary {
-  @apply btn border border-line bg-surface text-ink hover:bg-surface-muted;
+
+@keyframes hl-bounce {
+  0% {
+    transform: scale(0.9);
+  }
+  60% {
+    transform: scale(1.06);
+  }
+  100% {
+    transform: scale(1);
+  }
 }
-@utility btn-danger {
-  @apply btn bg-red-700 text-white hover:bg-red-800;
+@keyframes hl-fade-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
 }
-@utility btn-success {
-  @apply btn bg-green-700 text-white hover:bg-green-800;
+@keyframes hl-spin {
+  to {
+    transform: rotate(360deg);
+  }
 }
-@utility input {
-  @apply min-h-touch w-full rounded-lg border border-line bg-surface px-3 text-ink placeholder:text-ink-muted;
+@keyframes hl-rise {
+  from {
+    opacity: 0;
+    transform: translateY(16px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
 }
-@utility label {
-  @apply mb-1 block text-sm font-medium text-ink-muted;
+@keyframes hl-skeleton {
+  50% {
+    opacity: 0.55;
+  }
 }
-@utility h1 {
-  @apply mb-4 text-2xl font-bold;
+
+@utility animate-bounce-ball {
+  animation: hl-bounce var(--hl-duration-slow) var(--hl-ease-standard) both;
 }
-@utility h2 {
-  @apply mb-3 text-lg font-semibold;
+@utility animate-fade-in {
+  animation: hl-fade-in var(--hl-duration-base) var(--hl-ease-standard) both;
+}
+@utility animate-rise {
+  animation: hl-rise var(--hl-duration-slow) var(--hl-ease-standard) both;
+}
+@utility animate-seam {
+  animation: hl-spin 1.6s linear infinite;
+}
+@utility animate-skeleton {
+  animation: hl-skeleton 1.4s ease-in-out infinite;
+}
+
+/* DESIGN.md §9: reduced motion → no movement, only cross-fades ≤ 120 ms; the loader stays still */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  ::before,
+  ::after {
+    transition-duration: var(--hl-duration-fast) !important;
+    scroll-behavior: auto !important;
+  }
+  .animate-bounce-ball,
+  .animate-rise,
+  .animate-fade-in {
+    animation: hl-fade-in var(--hl-duration-fast) linear both !important;
+  }
+  .animate-seam,
+  .animate-skeleton {
+    animation: none !important;
+  }
+  .transition-press:active {
+    transform: none !important;
+  }
+}
+
+/* Feldlinie: 1.5 px border width */
+@utility border-hl {
+  border-width: var(--hl-size-line);
+}
+@utility border-b-hl {
+  border-bottom-width: var(--hl-size-line);
+}
+@utility border-t-hl {
+  border-top-width: var(--hl-size-line);
+}
+@utility border-l-hl {
+  border-left-width: var(--hl-size-line);
+}
+@utility border-r-hl {
+  border-right-width: var(--hl-size-line);
 }

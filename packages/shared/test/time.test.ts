@@ -6,6 +6,7 @@ import {
   diffDays,
   fixedClock,
   formatDateDe,
+  formatDayMonthDe,
   formatDateLongDe,
   localToInstant,
   mondayOf,
@@ -69,6 +70,7 @@ describe('time', () => {
   it('formats dates in German', () => {
     expect(formatDateDe('2026-11-11')).toBe('Mi, 11.11.2026');
     expect(formatDateLongDe('2026-11-10')).toBe('Dienstag, 10. November 2026');
+    expect(formatDayMonthDe('2026-03-05')).toBe('Do, 05.03.');
   });
 
   it('provides a fixed clock for tests', () => {
