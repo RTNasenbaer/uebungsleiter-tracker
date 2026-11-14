@@ -1,0 +1,12 @@
+node_modules/
+.dev.vars
+.env*
+!.env.example
+*.jks
+*.keystore
+keystore.properties
+.wrangler/
+build/
+.svelte-kit/
+test-results/
+playwright-report/
