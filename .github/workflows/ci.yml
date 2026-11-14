@@ -1,0 +1,104 @@
+# SPDX-License-Identifier: AGPL-3.0-or-later
+name: CI
+
+on:
+  pull_request:
+  push:
+    branches: [main, dev]
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  TZ: Europe/Berlin
+  WRANGLER_SEND_METRICS: 'false'
+
+jobs:
+  web:
+    name: Lint, typecheck, unit tests, build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: pnpm/action-setup@v6
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 22
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm lint
+      - run: pnpm check
+      - run: pnpm test
+      - run: pnpm build
+      - uses: actions/upload-artifact@v7
+        with:
+          name: web-build
+          path: apps/web/build
+          retention-days: 7
+
+  e2e:
+    name: Playwright (5 browsers/devices)
+    runs-on: ubuntu-latest
+    needs: web
+    steps:
+      - uses: actions/checkout@v7
+      - uses: pnpm/action-setup@v6
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 22
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - uses: actions/download-artifact@v7
+        with:
+          name: web-build
+          path: apps/web/build
+      - run: pnpm --filter @ult/e2e exec playwright install --with-deps chromium firefox webkit
+      - run: pnpm test:e2e
+      - uses: actions/upload-artifact@v7
+        if: always()
+        with:
+          name: playwright-report
+          path: |
+            playwright-report
+            test-results/screens
+          retention-days: 14
+
+  android:
+    name: Android (ktlint, detekt, lint, JVM tests, Roborazzi, APK)
+    runs-on: ubuntu-latest
+    needs: web
+    steps:
+      - uses: actions/checkout@v7
+      - uses: pnpm/action-setup@v6
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 22
+          cache: pnpm
+      - uses: actions/setup-java@v6
+        with:
+          distribution: temurin
+          java-version: 21
+          cache: gradle
+      - uses: android-actions/setup-android@v4
+      - run: pnpm install --frozen-lockfile
+      - uses: actions/download-artifact@v7
+        with:
+          name: web-build
+          path: apps/web/build
+      - run: pnpm --filter @ult/android sync
+      - name: Gradle checks
+        working-directory: apps/android/android
+        run: ./gradlew --no-daemon ktlintCheck detekt lintDebug testDebugUnitTest verifyRoborazziDebug assembleDebug
+      - uses: actions/upload-artifact@v7
+        if: always()
+        with:
+          name: android-reports
+          path: |
+            apps/android/android/app/build/reports
+            apps/android/android/app/build/outputs/roborazzi
+          retention-days: 14
+      - uses: actions/upload-artifact@v7
+        with:
+          name: app-debug-apk
+          path: apps/android/android/app/build/outputs/apk/debug/app-debug.apk
+          retention-days: 14
