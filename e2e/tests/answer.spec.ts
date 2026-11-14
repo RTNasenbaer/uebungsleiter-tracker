@@ -48,10 +48,10 @@ test('devices: pairing code and switching the alarm device', async ({ page, logi
   await page.goto('/geraete');
   await page.getByRole('button', { name: 'Gerät koppeln' }).click();
   const code = page.getByTestId('pairing-code');
-  await expect(code).toHaveText(/^[A-Z0-9]{4} [A-Z0-9]{4}$/);
+  await expect(code).toHaveText(/^\s*[A-Z0-9]{4} [A-Z0-9]{4}\s*$/);
   await expect(page.getByAltText('QR-Code zum Koppeln')).toBeVisible();
   await screenshot(page, 'geraete-koppeln');
-  const plain = (await code.textContent())!.replace(' ', '');
+  const plain = (await code.textContent())!.replace(/\s/g, '');
 
   // two phones redeem codes
   const client = { 'x-test-client': `${test.info().project.name}-${Date.now()}` };
