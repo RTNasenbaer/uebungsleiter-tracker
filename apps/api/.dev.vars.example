@@ -1,0 +1,8 @@
+# Copy to .dev.vars for local development (wrangler dev). Never commit .dev.vars.
+ENVIRONMENT=development
+ENABLE_TEST_ROUTES=true
+APP_ORIGIN=http://localhost:5173
+# Optional – only needed to try the real GitHub login locally:
+# GITHUB_CLIENT_ID=
+# GITHUB_CLIENT_SECRET=
+# ALLOWED_GITHUB_IDS=
