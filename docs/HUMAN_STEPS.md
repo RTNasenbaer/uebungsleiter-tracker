@@ -2,7 +2,7 @@
 
 Alles kostet **0 €**. Reihenfolge einhalten. Nach jedem Schritt `[x]` setzen.
 
-## [ ] HS-01: PR nach `main` mergen (⏱ ~2 min · blockiert: Deploy)
+## [X] HS-01: PR nach `main` mergen (⏱ ~2 min · blockiert: Deploy)
 
 **Warum:** Ich merge nie selbst nach `main`.
 **Schritte:**
@@ -12,7 +12,7 @@ Alles kostet **0 €**. Reihenfolge einhalten. Nach jedem Schritt `[x]` setzen.
 
 **Erwartet:** Der Workflow „Deploy“ läuft an und meldet „Deploy übersprungen“, bis HS-02 erledigt ist.
 
-## [ ] HS-02: Cloudflare-Konto + API-Token (⏱ ~10 min · blockiert: Website online)
+## [X] HS-02: Cloudflare-Konto + API-Token (⏱ ~10 min · blockiert: Website online)
 
 **Warum:** Ich kann keine Konten anlegen.
 **Schritte:**
@@ -30,7 +30,7 @@ Alles kostet **0 €**. Reihenfolge einhalten. Nach jedem Schritt `[x]` setzen.
 **Erwartet:** Workflow grün; im Log steht die Adresse `https://uebungsleiter-tracker.<dein-name>.workers.dev`.
 **Rückmeldung an Claude:** „HS-02 ok“ + die Adresse.
 
-## [ ] HS-03: GitHub-Login einrichten (⏱ ~5 min · blockiert: Anmelden auf der Website)
+## [X] HS-03: GitHub-Login einrichten (⏱ ~5 min · blockiert: Anmelden auf der Website)
 
 **Schritte:**
 
@@ -47,7 +47,7 @@ Alles kostet **0 €**. Reihenfolge einhalten. Nach jedem Schritt `[x]` setzen.
 
 **Erwartet:** Website öffnen → „Mit GitHub anmelden“ → du landest auf „Start“.
 
-## [ ] HS-04: Release-Schlüssel hochladen (⏱ ~3 min · blockiert: APK)
+## [X] HS-04: Release-Schlüssel hochladen (⏱ ~3 min · blockiert: APK)
 
 **Warum:** Secrets in GitHub darf nur du setzen. Den Schlüssel habe ich schon erzeugt (Ordner `release-keystore/`, nicht im Git).
 **Schritte (im VS-Code-Terminal im Container):**
@@ -60,7 +60,7 @@ Danach den Ordner `release-keystore/` sichern (z. B. als ZIP in den Passwortmana
 **Ohne diesen Schlüssel kann die App später nicht aktualisiert werden.** `backup-passphrase.txt` darin entschlüsselt die
 wöchentlichen Datenbank-Backups.
 
-## [ ] HS-05: Erste App-Version veröffentlichen (⏱ ~2 min + 10 min Warten)
+## [X] HS-05: Erste App-Version veröffentlichen (⏱ ~2 min + 10 min Warten)
 
 ```bash
 git switch main && git pull && git tag v0.1.0 && git push origin v0.1.0
@@ -68,7 +68,7 @@ git switch main && git pull && git tag v0.1.0 && git push origin v0.1.0
 
 **Erwartet:** Actions → „Release APK“ wird grün; unter „Releases“ liegt `app-release.apk`.
 
-## [ ] HS-06: App aufs Handy + Test-Alarm (⏱ ~10 min · braucht: Android-Handy)
+## [X] HS-06: App aufs Handy + Test-Alarm (⏱ ~10 min · braucht: Android-Handy)
 
 **Warum:** Echtes Verhalten (Hersteller-Akkusparen, Sperrbildschirm) kann ich nicht simulieren.
 **Schritte:**
@@ -82,3 +82,15 @@ git switch main && git pull && git tag v0.1.0 && git push origin v0.1.0
 
 **Erwartet:** Vollbild „Test-Alarm“ mit Ton erscheint über dem Sperrbildschirm; „JA, gehalten“ schließt ihn.
 **Rückmeldung an Claude:** „HS-06 ok“ oder was stattdessen passiert ist (Screenshot hilft).
+
+## [X] HS-07: Wöchentliches Datenbank-Backup (erledigt durch HS-04)
+
+`scripts/set-release-secrets.sh` setzt `BACKUP_PASSPHRASE` mit (Datei `release-keystore/backup-passphrase.txt`).
+Manueller Lauf von „D1 backup“ war grün. Wiederherstellen:
+`openssl enc -d -aes-256-cbc -pbkdf2 -iter 200000 -in d1-backup.sql.enc -out backup.sql -pass file:backup-passphrase.txt`.
+
+## [X] HS-08: Samsung-Akkusparen ausnehmen
+
+App-Info → Akku → **Nicht eingeschränkt**. Auf dem A53 (One UI 8) tauchte die App in „Nie schlafende Apps“ nicht auf;
+„Nicht eingeschränkt“ ist die stärkere Ausnahme und reicht.
+**Rückmeldung an Claude:** nur falls ein echter Trainings-Alarm ausbleibt (Uhrzeit + Training nennen).

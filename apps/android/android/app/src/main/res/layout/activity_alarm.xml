@@ -1,98 +1,148 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!-- SPDX-License-Identifier: AGPL-3.0-or-later -->
-<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+<!-- Alarm screen per DESIGN.md §7: net-pattern head, scoreboard hierarchy, JA 72 dp / NEIN 64 dp / Später 48 dp. -->
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/alarm_root"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/alarm_background"
-    android:fillViewport="true">
+    android:background="@color/hl_alarm_bg">
 
-    <LinearLayout
+    <de.uebungsleiter.tracker.alarm.NetPatternView
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_height="300dp" />
+
+    <ScrollView
+        android:id="@+id/alarm_content"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:fillViewport="true">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:paddingHorizontal="@dimen/hl_space_6"
+            android:paddingTop="@dimen/hl_space_12"
+            android:paddingBottom="@dimen/hl_space_6">
+
+            <TextView
+                android:id="@+id/alarm_label"
+                style="@style/AlarmText.Label"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                tools:text="U12 TRAINING" />
+
+            <TextView
+                android:id="@+id/alarm_date"
+                style="@style/AlarmText.Date"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/hl_space_2"
+                tools:text="Di, 10.11." />
+
+            <TextView
+                android:id="@+id/alarm_time"
+                style="@style/AlarmText.Time"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                tools:text="18:00–19:30" />
+
+            <TextView
+                android:id="@+id/alarm_location"
+                style="@style/AlarmText.Muted"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/hl_space_1"
+                tools:text="Sporthalle Gymnasium" />
+
+            <Space
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:layout_weight="1"
+                android:minHeight="@dimen/hl_space_10" />
+
+            <TextView
+                android:id="@+id/alarm_title"
+                style="@style/AlarmText.Question"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="@dimen/hl_space_6"
+                android:accessibilityHeading="true"
+                tools:targetApi="p"
+                android:text="@string/alarm_question" />
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/alarm_yes"
+                style="@style/AlarmButton"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:minHeight="@dimen/hl_size_alarm_yes"
+                android:text="@string/alarm_yes"
+                android:textColor="@color/hl_alarm_on_accent"
+                app:backgroundTint="@color/hl_alarm_accent" />
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/alarm_no"
+                style="@style/AlarmButton.Outline"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/hl_space_3"
+                android:minHeight="@dimen/hl_size_alarm_no"
+                android:text="@string/alarm_no" />
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/alarm_later"
+                style="@style/AlarmButton.Text"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/hl_space_2"
+                android:minHeight="@dimen/hl_size_alarm_later" />
+
+            <EditText
+                android:id="@+id/alarm_note"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/hl_space_2"
+                android:autofillHints=""
+                android:backgroundTint="@color/hl_scoreboard_line"
+                android:fontFamily="@font/barlow_regular"
+                android:hint="@string/alarm_note_hint"
+                android:importantForAutofill="no"
+                android:inputType="textCapSentences"
+                android:maxLength="500"
+                android:minHeight="@dimen/hl_size_touch"
+                android:textColor="@color/hl_alarm_text"
+                android:textColorHint="@color/hl_alarm_muted"
+                android:textSize="@dimen/hl_text_base" />
+        </LinearLayout>
+    </ScrollView>
+
+    <!-- confirmation: check in a ball-yellow circle, "Eingetragen" -->
+    <LinearLayout
+        android:id="@+id/alarm_confirm"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="@color/hl_alarm_bg"
         android:gravity="center"
         android:orientation="vertical"
-        android:padding="24dp">
+        android:visibility="gone">
+
+        <ImageView
+            android:id="@+id/alarm_confirm_icon"
+            android:layout_width="112dp"
+            android:layout_height="112dp"
+            android:contentDescription="@null"
+            android:src="@drawable/ic_alarm_confirm" />
 
         <TextView
-            android:id="@+id/alarm_time"
+            android:id="@+id/alarm_confirm_text"
+            style="@style/AlarmText.Question"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:textColor="@color/alarm_text"
-            android:textSize="56sp"
-            android:textStyle="bold" />
-
-        <TextView
-            android:id="@+id/alarm_title"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="16dp"
-            android:gravity="center"
-            android:textColor="@color/alarm_text"
-            android:textSize="28sp"
-            android:textStyle="bold" />
-
-        <TextView
-            android:id="@+id/alarm_subtitle"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="8dp"
-            android:layout_marginBottom="32dp"
-            android:gravity="center"
-            android:textColor="@color/alarm_text_muted"
-            android:textSize="18sp" />
-
-        <com.google.android.material.button.MaterialButton
-            android:id="@+id/alarm_yes"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:minHeight="88dp"
-            android:text="@string/alarm_yes"
-            android:textAllCaps="false"
-            android:textColor="#FFFFFF"
-            android:textSize="24sp"
-            app:backgroundTint="@color/alarm_yes"
-            app:cornerRadius="16dp"
-            xmlns:app="http://schemas.android.com/apk/res-auto" />
-
-        <com.google.android.material.button.MaterialButton
-            android:id="@+id/alarm_no"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="16dp"
-            android:minHeight="88dp"
-            android:text="@string/alarm_no"
-            android:textAllCaps="false"
-            android:textColor="#FFFFFF"
-            android:textSize="24sp"
-            app:backgroundTint="@color/alarm_no"
-            app:cornerRadius="16dp"
-            xmlns:app="http://schemas.android.com/apk/res-auto" />
-
-        <com.google.android.material.button.MaterialButton
-            android:id="@+id/alarm_later"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="16dp"
-            android:minHeight="64dp"
-            android:textAllCaps="false"
-            android:textColor="@color/alarm_later_text"
-            android:textSize="20sp"
-            app:backgroundTint="@color/alarm_later_bg"
-            app:cornerRadius="16dp"
-            xmlns:app="http://schemas.android.com/apk/res-auto" />
-
-        <EditText
-            android:id="@+id/alarm_note"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="24dp"
-            android:autofillHints=""
-            android:hint="@string/alarm_note_hint"
-            android:importantForAutofill="no"
-            android:inputType="textCapSentences"
-            android:maxLength="500"
-            android:minHeight="56dp"
-            android:textColor="@color/alarm_text"
-            android:textColorHint="@color/alarm_text_muted" />
+            android:layout_marginTop="@dimen/hl_space_5"
+            android:accessibilityLiveRegion="assertive"
+            android:text="@string/alarm_saved" />
     </LinearLayout>
-</ScrollView>
+</FrameLayout>

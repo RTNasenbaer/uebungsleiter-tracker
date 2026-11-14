@@ -14,7 +14,7 @@ test('new series in the past → open list for "Nachtragen" → bulk confirm', a
   await expect(page.getByRole('button', { name: 'Di', exact: true })).toHaveAttribute('aria-pressed', 'true');
   await page.getByRole('button', { name: 'Do', exact: true }).click();
   await expect(page.getByTestId('past-hint')).toHaveText(
-    '20 vergangene Termine werden zum Nachtragen angelegt.',
+    '20 vergangene Termine werden zum Bestätigen angelegt.',
   );
   await screenshot(page, 'neu-serie');
   await expectAccessible(page);
@@ -23,21 +23,23 @@ test('new series in the past → open list for "Nachtragen" → bulk confirm', a
   await expect(page).toHaveURL(/\/offen$/);
   const items = page.getByTestId('open-list').getByRole('listitem');
   await expect(items).toHaveCount(20);
-  await expect(items.first()).toContainText('Do, 05.11.2026');
-  await expect(items.last()).toContainText('Di, 01.09.2026');
+  await expect(items.first()).toContainText('Do, 05.11.');
+  await expect(items.last()).toContainText('Di, 01.09.');
   await screenshot(page, 'offen');
   await expectAccessible(page);
 
   await page.getByLabel('Alle auswählen').check();
   await expect(page.getByText('20 ausgewählt')).toBeVisible();
   await page.getByRole('button', { name: 'Alle markierten: gehalten' }).click();
-  await expect(page.getByText('Keine offenen Termine.')).toBeVisible();
+  await expect(page.getByText('Alles bestätigt. Stark.')).toBeVisible();
 
   await page.goto('/');
   // 20 held sessions × 15,00 € in 2026; November: 2 held (03.11., 05.11.)
   await expect(page.getByTestId('sum-year')).toHaveText('300,00 €');
   await expect(page.getByTestId('sum-month')).toHaveText('30,00 €');
-  await expect(page.getByText('Di, 10.11.2026, 18:00–19:30')).toBeVisible();
+  const next = page.getByRole('region', { name: 'Nächstes Training' });
+  await expect(next).toContainText('10.11.');
+  await expect(next).toContainText('18:00–19:30');
   await screenshot(page, 'start');
   await expectAccessible(page);
 
@@ -68,7 +70,8 @@ test('edit series session: "nur dieser" vs. "dieser und alle folgenden"', async 
   await page.getByRole('button', { name: 'Speichern' }).click();
   await expect(page.getByTestId('scope-dialog')).toBeVisible();
   await screenshot(page, 'scope-dialog');
-  await page.getByRole('button', { name: 'Nur dieser Termin' }).click();
+  await page.getByRole('radio', { name: 'Nur dieser Termin' }).check();
+  await page.getByRole('button', { name: 'Übernehmen' }).click();
   await expect(page.getByTestId('scope-dialog')).toBeHidden();
   const range = '/api/sessions?from=2026-11-17&to=2026-12-08';
   await expect
@@ -78,7 +81,8 @@ test('edit series session: "nur dieser" vs. "dieser und alle folgenden"', async 
   await page.getByRole('button', { name: 'Di, 24.11.2026' }).click();
   await page.getByLabel('von', { exact: true }).fill('17:00');
   await page.getByRole('button', { name: 'Speichern' }).click();
-  await page.getByRole('button', { name: 'Dieser und alle folgenden' }).click();
+  await page.getByRole('radio', { name: 'Dieser und alle folgenden' }).check();
+  await page.getByRole('button', { name: 'Übernehmen' }).click();
   await expect(page.getByTestId('scope-dialog')).toBeHidden();
   await expect
     .poll(async () =>

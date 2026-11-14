@@ -1,18 +1,36 @@
 <!-- SPDX-License-Identifier: AGPL-3.0-or-later -->
 <script lang="ts">
   import { SvelteSet } from 'svelte/reactivity';
-  import { formatDateDe, type SessionDto } from '@ult/shared';
+  import { MONTHS_DE, type SessionDto } from '@ult/shared';
   import { api } from '$lib/api';
+  import { bulkWithUndo } from '$lib/answers';
   import SessionEditor from '$lib/components/SessionEditor.svelte';
+  import Button from '$lib/components/ui/Button.svelte';
+  import Card from '$lib/components/ui/Card.svelte';
+  import Checkbox from '$lib/components/ui/Checkbox.svelte';
+  import EmptyState from '$lib/components/ui/EmptyState.svelte';
+  import PageHeader from '$lib/components/ui/PageHeader.svelte';
+  import SectionHeader from '$lib/components/ui/SectionHeader.svelte';
+  import SessionCard from '$lib/components/ui/SessionCard.svelte';
+  import Skeleton from '$lib/components/ui/Skeleton.svelte';
   import { de } from '$lib/i18n/de';
-  import { app, bumpRevision, toast } from '$lib/state.svelte';
+  import { app, toast } from '$lib/state.svelte';
 
   let open = $state<SessionDto[]>([]);
   const selected = new SvelteSet<string>();
   let loaded = $state(false);
-  let busy = $state(false);
+  let busy = $state<'held' | 'not_held' | null>(null);
   let editing = $state<SessionDto | null>(null);
   const allSelected = $derived(open.length > 0 && selected.size === open.length);
+  const groups = $derived.by(() => {
+    const byMonth: Record<string, SessionDto[]> = {};
+    for (const s of open) (byMonth[s.date.slice(0, 7)] ??= []).push(s);
+    return Object.entries(byMonth).map(([key, items]) => ({
+      key,
+      title: `${MONTHS_DE[Number(key.slice(5)) - 1]} ${key.slice(0, 4)}`,
+      items,
+    }));
+  });
 
   $effect(() => {
     void app.revision;
@@ -29,68 +47,87 @@
   }
 
   async function bulk(status: 'held' | 'not_held') {
-    busy = true;
+    busy = status;
     try {
-      const { updated } = await api.bulk([...selected], status);
-      toast(de.open.updated(updated));
+      await bulkWithUndo(
+        open.filter((s) => selected.has(s.occurrenceKey)),
+        status,
+      );
       selected.clear();
-      bumpRevision();
     } catch (e) {
       toast((e as Error).message, 'error');
     } finally {
-      busy = false;
+      busy = null;
     }
   }
 </script>
 
-<h1 class="h1">{de.open.title}</h1>
-<p class="mb-4 text-ink-muted">{de.open.intro}</p>
+<PageHeader label={de.open.label} title={de.open.title} />
+<p class="-mt-3 mb-6 max-w-prose text-muted">{de.open.intro}</p>
 
-{#if loaded && open.length === 0}
-  <p class="card text-center text-lg">{de.open.none}</p>
-{:else if open.length > 0}
-  <div class="card mb-3 flex flex-wrap items-center gap-3">
-    <label class="flex min-h-touch items-center gap-2 font-medium">
-      <input
-        type="checkbox"
-        class="size-5"
+{#if !loaded}
+  <Skeleton rows={4} />
+{:else if open.length === 0}
+  <Card>
+    <EmptyState text={de.open.none}>
+      {#snippet action()}<Button href="/kalender" variant="secondary">{de.open.toCalendar}</Button>{/snippet}
+    </EmptyState>
+  </Card>
+{:else}
+  <!-- bulk bar: fixed above the bottom navigation on phones, sticky at the top on larger screens -->
+  <div
+    class="fixed inset-x-0 bottom-[calc(4rem+env(safe-area-inset-bottom))] z-20 border-t-hl border-line bg-surface px-4 pt-2 pb-8 md:sticky md:top-0 md:bottom-auto md:z-10 md:mb-6 md:rounded-md md:border-hl md:px-4"
+  >
+    <div class="mx-auto flex max-w-content flex-wrap items-center gap-x-4 gap-y-1">
+      <Checkbox
         checked={allSelected}
+        label={de.open.selectAll}
         onchange={() => {
           if (allSelected) selected.clear();
           else open.forEach((s) => selected.add(s.occurrenceKey));
         }}
       />
-      {de.open.selectAll}
-    </label>
-    <span class="text-ink-muted" aria-live="polite">{de.open.selected(selected.size)}</span>
-    <div class="flex flex-1 flex-wrap justify-end gap-2">
-      <button class="btn-success" disabled={busy || selected.size === 0} onclick={() => bulk('held')}
-        >{de.open.markHeld}</button
-      >
-      <button class="btn-secondary" disabled={busy || selected.size === 0} onclick={() => bulk('not_held')}
-        >{de.open.markNotHeld}</button
-      >
+      <span class="text-sm text-muted" aria-live="polite">{de.open.selected(selected.size)}</span>
+      <div class="ml-auto flex gap-2">
+        <Button
+          variant="accent"
+          loading={busy === 'held'}
+          disabled={!!busy || selected.size === 0}
+          onclick={() => bulk('held')}
+          aria-label={de.open.markHeld}>{de.open.markHeldShort}</Button
+        >
+        <Button
+          variant="secondary"
+          loading={busy === 'not_held'}
+          disabled={!!busy || selected.size === 0}
+          onclick={() => bulk('not_held')}
+          aria-label={de.open.markNotHeld}>{de.open.markNotHeldShort}</Button
+        >
+      </div>
     </div>
   </div>
-  <ul class="card flex flex-col divide-y divide-line p-0" data-testid="open-list">
-    {#each open as s (s.id)}
-      <li class="flex items-center gap-3 px-4 py-1">
-        <input
-          type="checkbox"
-          class="size-5 shrink-0"
-          checked={selected.has(s.occurrenceKey)}
-          onchange={() => toggle(s.occurrenceKey)}
-          aria-label="{formatDateDe(s.date)} {s.team} auswählen"
-        />
-        <button class="min-h-touch flex-1 py-2 text-left" onclick={() => (editing = s)}>
-          <span class="font-medium">{formatDateDe(s.date)}</span>
-          <span class="text-ink-muted"
-            >· {s.startTime}–{s.endTime} · {[s.team, s.title].filter(Boolean).join(' ')}</span
-          >
-        </button>
-      </li>
+
+  <div class="flex flex-col gap-8 pb-36 md:pb-0" data-testid="open-list">
+    {#each groups as g (g.key)}
+      <section aria-labelledby="m-{g.key}">
+        <SectionHeader id="m-{g.key}" title={g.title} count={g.items.length} />
+        <ul class="flex flex-col gap-2">
+          {#each g.items as s (s.id)}
+            <li>
+              <SessionCard
+                session={s}
+                selectable
+                selected={selected.has(s.occurrenceKey)}
+                onselect={() => toggle(s.occurrenceKey)}
+                onopen={() => (editing = s)}
+                showStatus={false}
+              />
+            </li>
+          {/each}
+        </ul>
+      </section>
     {/each}
-  </ul>
+  </div>
 {/if}
 
 <SessionEditor bind:session={editing} />

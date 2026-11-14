@@ -13,12 +13,24 @@
   import { type ImportPreview, readImportFile } from '$lib/export/importFile';
   import { buildReportPdf } from '$lib/export/pdf';
   import { buildXlsx } from '$lib/export/xlsx';
+  import Download from 'lucide-svelte/icons/download';
+  import FileSpreadsheet from 'lucide-svelte/icons/file-spreadsheet';
+  import FileText from 'lucide-svelte/icons/file-text';
+  import Upload from 'lucide-svelte/icons/upload';
+  import Button from '$lib/components/ui/Button.svelte';
+  import Card from '$lib/components/ui/Card.svelte';
+  import FilterChips from '$lib/components/ui/FilterChips.svelte';
+  import PageHeader from '$lib/components/ui/PageHeader.svelte';
+  import SectionHeader from '$lib/components/ui/SectionHeader.svelte';
+  import SegmentedControl from '$lib/components/ui/SegmentedControl.svelte';
+  import Switch from '$lib/components/ui/Switch.svelte';
   import { de } from '$lib/i18n/de';
   import { saveFile } from '$lib/native/files';
   import { app, bumpRevision, toast } from '$lib/state.svelte';
 
   const currentYear = Number(todayIn(systemClock).slice(0, 4));
-  let year = $state(currentYear);
+  let yearStr = $state(String(currentYear));
+  const year = $derived(Number(yearStr));
   let includePlanned = $state(false);
   let detailPage = $state(false);
   let sessions = $state<SessionDto[]>([]);
@@ -113,109 +125,137 @@
     });
 </script>
 
-<h1 class="h1">{de.export.title}</h1>
+<PageHeader label={de.export.label} title={de.export.title} />
 
-<section class="card mb-4" aria-labelledby="report-h">
-  <h2 id="report-h" class="h2">{de.export.report}</h2>
-  <div class="mb-3 flex flex-wrap items-end gap-4">
-    <label>
-      <span class="label">{de.export.year}</span>
-      <select class="input w-32" bind:value={year}>
-        {#each years as y (y)}<option value={y}>{y}</option>{/each}
-      </select>
-    </label>
-    <label class="flex min-h-touch items-center gap-2">
-      <input type="checkbox" class="size-5" bind:checked={includePlanned} />
-      {de.export.includePlanned}
-    </label>
-    <label class="flex min-h-touch items-center gap-2">
-      <input type="checkbox" class="size-5" bind:checked={detailPage} />
-      {de.export.detailPage}
-    </label>
-  </div>
-  {#if !includePlanned}
-    <p class="mb-3 text-sm text-ink-muted">{de.export.includePlannedHint}</p>
-  {/if}
-
-  <h3 class="mb-2 font-semibold">{de.export.preview}</h3>
-  <div class="mb-4 overflow-x-auto">
-    <table class="w-full border-collapse text-sm" data-testid="report-preview">
-      <thead>
-        <tr class="bg-surface-muted">
-          <th class="border border-line p-2 text-left">Monat Kalenderjahr {year}</th>
-          <th class="border border-line p-2 text-left">Trainingsgruppe(n)</th>
-          <th class="border border-line p-2">Trainingseinheiten (90–120 Minuten) pro Monat</th>
-        </tr>
-      </thead>
-      <tbody>
-        {#each report.months as m (m.month)}
-          <tr>
-            <td class="border border-line p-2">{m.name}</td>
-            <td class="border border-line p-2">{m.teams.join(', ')}</td>
-            <td class="border border-line p-2 text-center">{m.units || ''}</td>
-          </tr>
-        {/each}
-        <tr class="font-bold">
-          <td class="border border-line p-2"></td>
-          <td class="border border-line p-2 text-right">Summe:</td>
-          <td class="border border-line p-2 text-center" data-testid="report-total">{report.totalUnits}</td>
-        </tr>
-      </tbody>
-    </table>
-  </div>
-  <button class="btn-primary" onclick={downloadPdf} disabled={busy || !settings}>{de.export.download}</button>
-</section>
-
-<section class="card mb-4" aria-labelledby="data-h">
-  <h2 id="data-h" class="h2">{de.export.data} ({year})</h2>
-  <div class="flex flex-wrap gap-2">
-    <button class="btn-secondary" onclick={downloadCsv} disabled={busy}>{de.export.csv}</button>
-    <button class="btn-secondary" onclick={downloadXlsx} disabled={busy}>{de.export.xlsx}</button>
-    <button class="btn-secondary" onclick={downloadJson} disabled={busy}>{de.export.json}</button>
-  </div>
-</section>
-
-<section class="card" aria-labelledby="import-h">
-  <h2 id="import-h" class="h2">{de.export.import}</h2>
-  <label class="block">
-    <span class="label">{de.export.importHint}</span>
-    <input
-      class="input py-2"
-      type="file"
-      accept=".csv,.xlsx,.json"
-      onchange={onFile}
-      data-testid="import-file"
+<div class="grid gap-8 lg:grid-cols-[minmax(0,3fr)_minmax(0,2fr)]">
+  <section aria-labelledby="report-h" class="flex min-w-0 flex-col gap-4">
+    <SectionHeader id="report-h" title={de.export.report} />
+    <FilterChips
+      legend={de.export.year}
+      bind:value={yearStr}
+      options={years.map((y) => ({ value: String(y), label: String(y) }))}
     />
-  </label>
-  {#if preview?.kind === 'sessions'}
-    {@const dupCount = duplicates.filter(Boolean).length}
-    <p class="mt-3 font-medium" data-testid="import-summary">
-      {de.export.importPreview(preview.valid.length - dupCount, dupCount, preview.errors.length)}
-    </p>
-    {#if preview.errors.length}
-      <ul class="mt-2 max-h-32 overflow-y-auto text-sm text-red-700">
-        {#each preview.errors as err (err.row)}<li>Zeile {err.row}: {err.error}</li>{/each}
-      </ul>
-    {/if}
-    {#if dupCount > 0}
-      <fieldset class="mt-3 flex flex-wrap items-center gap-3">
-        <legend class="label">{de.export.duplicates}</legend>
-        <label class="flex min-h-touch items-center gap-2"
-          ><input type="radio" bind:group={onDuplicate} value="skip" /> {de.export.dupSkip}</label
-        >
-        <label class="flex min-h-touch items-center gap-2"
-          ><input type="radio" bind:group={onDuplicate} value="overwrite" /> {de.export.dupOverwrite}</label
-        >
-      </fieldset>
-    {/if}
-    <button class="btn-primary mt-3" onclick={runImport} disabled={busy || preview.valid.length === 0}
-      >{de.export.importButton}</button
+    <Card class="flex flex-col gap-1 py-2 md:py-2">
+      <Switch
+        label={de.export.includePlanned}
+        bind:checked={includePlanned}
+        description={includePlanned ? undefined : de.export.includePlannedHint}
+      />
+      <div class="h-[var(--hl-size-line)] bg-line" aria-hidden="true"></div>
+      <Switch label={de.export.detailPage} bind:checked={detailPage} />
+    </Card>
+
+    <!-- preview: a sheet of paper, also in dark mode -->
+    <!-- svelte-ignore a11y_no_noninteractive_tabindex -->
+    <figure
+      class="overflow-x-auto rounded-sm bg-paper p-5 text-on-paper shadow-float md:p-8"
+      aria-labelledby="preview-cap"
+      tabindex="0"
     >
-  {:else if preview?.kind === 'backup'}
-    <p class="mt-3 font-medium">
-      Backup vom {new Date(preview.backup.exportedAt).toLocaleString('de-DE')}: {preview.backup.series.length} Trainings,
-      {preview.backup.sessions.length} Termine
-    </p>
-    <button class="btn-primary mt-3" onclick={runImport} disabled={busy}>{de.export.importButton}</button>
-  {/if}
-</section>
+      <figcaption id="preview-cap" class="sr-only">{de.export.preview}</figcaption>
+      <p class="mb-4 font-score text-2xl font-bold">{de.export.reportTitle(year)}</p>
+      <table class="w-full border-collapse text-sm" data-testid="report-preview">
+        <thead>
+          <tr>
+            <th class="border border-paper-line p-2 text-left font-semibold">{de.export.colMonth(year)}</th>
+            <th class="border border-paper-line p-2 text-left font-semibold">{de.export.colGroups}</th>
+            <th class="border border-paper-line p-2 font-semibold">{de.export.colUnits}</th>
+          </tr>
+        </thead>
+        <tbody>
+          {#each report.months as m (m.month)}
+            <tr>
+              <td class="border border-paper-line px-2 py-1.5">{m.name}</td>
+              <td class="border border-paper-line px-2 py-1.5">{m.teams.join(', ')}</td>
+              <td class="border border-paper-line px-2 py-1.5 text-center">{m.units || ''}</td>
+            </tr>
+          {/each}
+          <tr class="font-bold">
+            <td class="border border-paper-line p-2"></td>
+            <td class="border border-paper-line p-2 text-right">{de.export.sum}</td>
+            <td class="border border-paper-line p-2 text-center font-score text-lg" data-testid="report-total"
+              >{report.totalUnits}</td
+            >
+          </tr>
+        </tbody>
+      </table>
+    </figure>
+    <div>
+      <Button size="lg" onclick={downloadPdf} loading={busy} disabled={!settings}>
+        <FileText size={20} strokeWidth={1.75} aria-hidden="true" />{de.export.download}</Button
+      >
+    </div>
+  </section>
+
+  <div class="flex min-w-0 flex-col gap-8">
+    <section aria-labelledby="data-h">
+      <SectionHeader id="data-h" title="{de.export.data} {year}" />
+      <div class="flex flex-wrap gap-2">
+        <Button variant="secondary" onclick={downloadCsv} disabled={busy} aria-label={de.export.csv}>
+          <Download size={18} strokeWidth={1.75} aria-hidden="true" />{de.export.csvShort}</Button
+        >
+        <Button variant="secondary" onclick={downloadXlsx} disabled={busy} aria-label={de.export.xlsx}>
+          <FileSpreadsheet size={18} strokeWidth={1.75} aria-hidden="true" />{de.export.xlsxShort}</Button
+        >
+        <Button variant="secondary" onclick={downloadJson} disabled={busy} aria-label={de.export.json}>
+          <Download size={18} strokeWidth={1.75} aria-hidden="true" />{de.export.jsonShort}</Button
+        >
+      </div>
+    </section>
+
+    <section aria-labelledby="import-h" class="flex flex-col gap-3">
+      <SectionHeader id="import-h" title={de.export.import} />
+      <label
+        class="relative flex min-h-24 cursor-pointer flex-col items-center justify-center gap-2 rounded-md border-2 border-dashed border-line-strong bg-surface p-4 text-center hover:bg-surface-sunken has-focus-visible:outline-3 has-focus-visible:outline-focus-outer"
+      >
+        <Upload size={24} strokeWidth={1.75} aria-hidden="true" />
+        <span class="font-semibold">{de.export.chooseFile}</span>
+        <span class="text-sm text-muted">{de.export.importHint}</span>
+        <input
+          class="sr-only"
+          type="file"
+          accept=".csv,.xlsx,.json"
+          onchange={onFile}
+          data-testid="import-file"
+        />
+      </label>
+      {#if preview?.kind === 'sessions'}
+        {@const dupCount = duplicates.filter(Boolean).length}
+        <Card class="flex flex-col gap-3">
+          <p class="font-semibold" data-testid="import-summary">
+            {de.export.importPreview(preview.valid.length - dupCount, dupCount, preview.errors.length)}
+          </p>
+          {#if preview.errors.length}
+            <ul class="max-h-32 overflow-y-auto text-sm text-danger">
+              {#each preview.errors as err (err.row)}<li>{de.export.rowError(err.row, err.error)}</li>{/each}
+            </ul>
+          {/if}
+          {#if dupCount > 0}
+            <SegmentedControl
+              legend={de.export.duplicates}
+              bind:value={onDuplicate}
+              options={[
+                { value: 'skip', label: de.export.dupSkip },
+                { value: 'overwrite', label: de.export.dupOverwrite },
+              ]}
+            />
+          {/if}
+          <Button onclick={runImport} loading={busy} disabled={preview.valid.length === 0}
+            >{de.export.importButton}</Button
+          >
+        </Card>
+      {:else if preview?.kind === 'backup'}
+        <Card class="flex flex-col gap-3">
+          <p class="font-semibold">
+            {de.export.backupInfo(
+              new Date(preview.backup.exportedAt).toLocaleString('de-DE'),
+              preview.backup.series.length,
+              preview.backup.sessions.length,
+            )}
+          </p>
+          <Button onclick={runImport} loading={busy}>{de.export.importButton}</Button>
+        </Card>
+      {/if}
+    </section>
+  </div>
+</div>

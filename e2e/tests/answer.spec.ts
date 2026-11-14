@@ -14,8 +14,9 @@ test('in-app question appears for a due session and records "Ja"', async ({ page
   await page.goto('/');
   const dialog = page.getByTestId('answer-dialog');
   await expect(dialog).toBeVisible();
-  await expect(dialog).toContainText('U12 Training');
-  await expect(dialog).toContainText('Di, 10.11.2026');
+  await expect(dialog).toContainText('U12 · Training');
+  await expect(dialog).toContainText('Di, 10.11.');
+  await expect(dialog).toContainText('10:00–11:30');
   await screenshot(page, 'in-app-abfrage');
   await expectAccessible(page);
   await dialog.getByRole('button', { name: 'JA, gehalten' }).click();

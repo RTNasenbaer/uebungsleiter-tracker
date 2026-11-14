@@ -65,9 +65,11 @@ class AlarmOverLockScreenTest {
         device.sleep() // screen off → keyguard
         Thread.sleep(LOCK_SETTLE_MS)
 
-        val yes = device.wait(Until.findObject(By.text("JA, gehalten")), WAIT_MS)
+        // resource ids instead of display texts (the buttons are rendered in caps)
+        val yes = device.wait(Until.findObject(By.res(PKG, "alarm_yes")), WAIT_MS)
         assertNotNull("AlarmActivity not visible over the lock screen", yes)
-        assertTrue(device.findObject(By.text("U12 Training gehalten?")) != null)
+        assertEquals("U12 TRAINING", device.findObject(By.res(PKG, "alarm_label"))?.text)
+        assertEquals("Training gehalten?", device.findObject(By.res(PKG, "alarm_title"))?.text)
         yes.click()
 
         val status = server.takeRequest(UPLOAD_WAIT_S, TimeUnit.SECONDS)
@@ -83,6 +85,7 @@ class AlarmOverLockScreenTest {
     }
 
     companion object {
+        private const val PKG = "de.uebungsleiter.tracker"
         private const val DELAY_MS = 5_000L
         private const val LOCK_SETTLE_MS = 1_000L
         private const val WAIT_MS = 30_000L

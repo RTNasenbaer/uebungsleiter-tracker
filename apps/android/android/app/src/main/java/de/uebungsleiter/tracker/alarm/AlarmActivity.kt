@@ -8,15 +8,15 @@ import android.os.Build
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
+import android.provider.Settings
+import android.view.View
 import android.view.WindowManager
+import android.view.animation.PathInterpolator
 import android.widget.Button
 import android.widget.EditText
 import android.widget.TextView
-import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import de.uebungsleiter.tracker.R
-import java.time.Instant
-import java.time.format.DateTimeFormatter
 
 /** Full-screen "Training gehalten?" screen shown over the lock screen (§4.3 step 4). */
 class AlarmActivity : AppCompatActivity() {
@@ -32,10 +32,14 @@ class AlarmActivity : AppCompatActivity() {
         val store = AlarmGraph.store(this)
         val config = store.config
 
-        findViewById<TextView>(R.id.alarm_time).text =
-            Instant.now(AlarmGraph.clock).atZone(BERLIN).format(DateTimeFormatter.ofPattern("HH:mm"))
-        findViewById<TextView>(R.id.alarm_title).text = item.title.ifBlank { getString(R.string.alarm_question) }
-        findViewById<TextView>(R.id.alarm_subtitle).text = item.subtitle
+        val display = AlarmDisplay.from(item, AlarmGraph.clock)
+        findViewById<TextView>(R.id.alarm_label).text = display.label
+        findViewById<TextView>(R.id.alarm_date).text = display.date
+        findViewById<TextView>(R.id.alarm_time).text = display.time
+        findViewById<TextView>(R.id.alarm_location).apply {
+            text = display.location
+            visibility = if (display.location.isBlank()) View.GONE else View.VISIBLE
+        }
         val later = findViewById<Button>(R.id.alarm_later)
         later.text = getString(R.string.alarm_later, config.snoozeMinutes)
         val note = findViewById<EditText>(R.id.alarm_note)
@@ -76,9 +80,36 @@ class AlarmActivity : AppCompatActivity() {
         } else {
             AnswerQueue.enqueue(this, item.key, status, note)
         }
-        Toast.makeText(this, R.string.alarm_saved, Toast.LENGTH_SHORT).show()
-        finish()
+        showConfirmation()
     }
+
+    /** "Eingetragen" with the ball bounce (scale .9 → 1.06 → 1, 320 ms); closes after 1.2 s (DESIGN.md §7/§9). */
+    private fun showConfirmation() {
+        findViewById<View>(R.id.alarm_content).visibility = View.GONE
+        val confirm = findViewById<View>(R.id.alarm_confirm)
+        val icon = findViewById<View>(R.id.alarm_confirm_icon)
+        confirm.visibility = View.VISIBLE
+        if (reducedMotion()) {
+            confirm.alpha = 0f
+            confirm.animate().alpha(1f).setDuration(FADE_MS).start()
+        } else {
+            icon.scaleX = BOUNCE_START
+            icon.scaleY = BOUNCE_START
+            icon.animate().scaleX(BOUNCE_PEAK).scaleY(BOUNCE_PEAK).setDuration(BOUNCE_UP_MS)
+                .setInterpolator(STANDARD_EASING)
+                .withEndAction {
+                    icon.animate().scaleX(1f).scaleY(1f)
+                        .setDuration(BOUNCE_DOWN_MS)
+                        .setInterpolator(STANDARD_EASING)
+                        .start()
+                }.start()
+        }
+        handler.postDelayed({ finish() }, CONFIRM_MS)
+    }
+
+    /** Reduced motion: "Remove animations" sets the animator duration scale to 0. */
+    private fun reducedMotion(): Boolean =
+        Settings.Global.getFloat(contentResolver, Settings.Global.ANIMATOR_DURATION_SCALE, 1f) == 0f
 
     private fun snooze() {
         answered = true
@@ -122,6 +153,13 @@ class AlarmActivity : AppCompatActivity() {
         const val EXTRA_REMINDERS = "reminders"
         const val EXTRA_SILENT = "silent"
         private const val MILLIS = 1000L
+        private const val CONFIRM_MS = 1200L
+        private const val FADE_MS = 120L
+        private const val BOUNCE_UP_MS = 190L
+        private const val BOUNCE_DOWN_MS = 130L
+        private const val BOUNCE_START = 0.9f
+        private const val BOUNCE_PEAK = 1.06f
+        private val STANDARD_EASING = PathInterpolator(0.2f, 0.8f, 0.2f, 1f)
 
         fun intent(context: Context, item: AlarmItem): Intent = Intent(context, AlarmActivity::class.java)
             .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_NO_USER_ACTION)
